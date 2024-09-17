@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
-    <title>Archives | JiuZero&#39;s Blog</title>
+    <title>categories | JiuZero&#39;s Blog</title>
     <meta name="author" content="JiuZero" />
     <meta name="description" content="Legends Never Die" />
     <meta name="keywords" content="" />
@@ -40,7 +40,9 @@
 
 
 
-<script src="/js/lib/search.js"></script>
+
+
+
 
 
 
@@ -152,66 +154,35 @@
 </transition>
 
         <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
-            
-<div id="archives">
-    
-    <input id="search-bar" class="input" placeholder="搜索" v-model="rawSearch" />
-    
-    <div id="timeline-wrap" ref="timeline">
+            <div class="article">
+    <div>
+        <h1>categories</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/9/17
+        </span>
         
-        <div class="timeline" data-title="记一次完整的edusrc漏洞挖掘">
-            <div class="timeline-tail"></div>
-            <div class="timeline-content">
-                <div class="item-time">2024/9/17</div>
-                <a href="/2024/09/17/%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84EDUSRC%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/">
-                    <h3>记一次完整的EDUSRC漏洞挖掘</h3>
-                </a>
-                <div class="info">
-                    
-                    <span class="category">
-                        <a href="/categories/Edusrc/">
-                            <span class="icon">
-                                <i class="fa-solid fa-bookmark fa-fw"></i>
-                            </span>
-                            Edusrc
-                        </a>
-                    </span>
-                    
-                    
-                    <span class="tags">
-                        <span class="icon">
-                            <i class="fa-solid fa-tags fa-fw"></i>
-                        </span>
-                        
-                        
-                        <span class="tag">
-                            
-                            <a href="/tags/SQL/" style="color: #ff7d73">
-                                SQL
-                            </a>
-                        </span>
-                        
-                        <span class="tag">
-                            
-                            <a href="/tags/XSS/" style="color: #03a9f4">
-                                XSS
-                            </a>
-                        </span>
-                        
-                        <span class="tag">
-                            
-                            <a href="/tags/Upload/" style="color: #ffa2c4">
-                                Upload
-                            </a>
-                        </span>
-                        
-                    </span>
-                    
-                </div>
-            </div>
-        </div>
         
     </div>
+    
+    <div class="content" v-pre>
+        
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
+    
 </div>
 
             <footer id="footer">
@@ -242,6 +213,29 @@
         
     </div>
     <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="JiuZero/JiuZero.github.io"
+    data-repo-id="R_kgDOMy6qwQ"
+    data-category="Announcements"
+    data-category-id="DIC_kwDOMy6qwc4CijBt"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
     
 </body>
 </html>
