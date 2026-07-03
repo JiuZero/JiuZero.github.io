@@ -1,0 +1,1179 @@
+  <!DOCTYPE html>
+  <html lang="en"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    Z0Scan - 使用指南 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="Life is short. You need z0scan.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Z0Scan - 使用指南">
+<meta property="og:url" content="https://jiuzero.github.io/en/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="Life is short. You need z0scan.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/example.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-bool.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-error.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-time.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/xss.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/leakpwd-page-passive.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-viewstate.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/trave-path.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-repository.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-js.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/captcha-bypass.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/codei-php.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/redirect.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/trave-list.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/crlf_1.png">
+<meta property="article:published_time" content="2025-06-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T16:25:21.714Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="z0scan">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/example.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">Loading...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/en/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">Home</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">Archives</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">About</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">Friend</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed" aria-label="RSS Feed" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="Search" aria-label="Search"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">English</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" aria-selected="false">简体中文</li>
+            <li data-value="en" role="option" class="selected" aria-selected="true">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2025/06/13/z0scan-使用手册/';
+              langMap['en'] = '/en/2025/06/13/z0scan-使用手册/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img crossorigin="anonymous" fetchpriority="high" src="https://img.8845.top/img2/G5ZJOsgb0AEGSHm.jpg" alt="Z0Scan - 使用指南">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">Z0Scan - 使用指南</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">安装</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">安装方式优劣对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">✔ 发行版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.3.</span> <span class="toc-text">✔ 克隆安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.4.</span> <span class="toc-text">✔ 容器安装 - Docker</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.1.</span> <span class="toc-text">version</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.2.</span> <span class="toc-text">scan 命令参数说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.3.</span> <span class="toc-text">list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.4.</span> <span class="toc-text">reverse</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">z0 scan 命令使用示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.1.</span> <span class="toc-text">基础扫描模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.2.</span> <span class="toc-text">爬虫模式扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.3.</span> <span class="toc-text">Redis 集成模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.4.</span> <span class="toc-text">输出选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.5.</span> <span class="toc-text">优化配置示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.6.</span> <span class="toc-text">调试模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">工作流程说明</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">插件示例（部分）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">sqli-bool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">sqli-error</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.3.</span> <span class="toc-text">sqli-time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.4.</span> <span class="toc-text">xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.5.</span> <span class="toc-text">leakpwd-page-passive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.6.</span> <span class="toc-text">sensi-viewstate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.7.</span> <span class="toc-text">trave-path</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.8.</span> <span class="toc-text">sensi-repository</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.9.</span> <span class="toc-text">sensi-js</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.10.</span> <span class="toc-text">captcha-bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.11.</span> <span class="toc-text">codei-php</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.12.</span> <span class="toc-text">redirect</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.13.</span> <span class="toc-text">trave-list</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.14.</span> <span class="toc-text">crlf_1</span></a></li></ol></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-z0scan-使用手册" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2025-06-12T16:00:00.000Z" itemprop="datePublished">2025-06-13</time>
+    <time style="display: none;" id="post-update-time">2026-07-04</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-07-03T16:25:21.714Z" itemprop="dateModified">2026-07-04</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <blockquote>
+<p>Life is short. You need z0scan.</p>
+</blockquote>
+<span id="more"></span>
+
+<!-- toc -->
+
+<ul>
+<li><a href="#%E4%BB%8B%E7%BB%8D">介绍</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85">安装</a><ul>
+<li><a href="#%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F%E4%BC%98%E5%8A%A3%E5%AF%B9%E6%AF%94">安装方式优劣对比</a></li>
+<li><a href="#%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC">✔ 发行版本</a></li>
+<li><a href="#%E5%85%8B%E9%9A%86%E5%AE%89%E8%A3%85">✔ 克隆安装</a></li>
+<li><a href="#%E5%AE%B9%E5%99%A8%E5%AE%89%E8%A3%85-docker">✔ 容器安装 - Docker</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BD%BF%E7%94%A8">使用</a><ul>
+<li><a href="#%E5%8F%82%E6%95%B0">参数</a><ul>
+<li><a href="#version">version</a></li>
+<li><a href="#scan-%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">scan 命令参数说明</a></li>
+<li><a href="#list">list</a></li>
+<li><a href="#reverse">reverse</a></li>
+</ul>
+</li>
+<li><a href="#z0-scan-%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B">z0 scan 命令使用示例</a><ul>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%89%AB%E6%8F%8F%E6%A8%A1%E5%BC%8F">基础扫描模式</a></li>
+<li><a href="#%E7%88%AC%E8%99%AB%E6%A8%A1%E5%BC%8F%E6%89%AB%E6%8F%8F">爬虫模式扫描</a></li>
+<li><a href="#redis-%E9%9B%86%E6%88%90%E6%A8%A1%E5%BC%8F">Redis 集成模式</a></li>
+<li><a href="#%E8%BE%93%E5%87%BA%E9%80%89%E9%A1%B9">输出选项</a></li>
+<li><a href="#%E4%BC%98%E5%8C%96%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B">优化配置示例</a></li>
+<li><a href="#%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F">调试模式</a></li>
+<li><a href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">注意事项</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E">工作流程说明</a></li>
+<li><a href="#%E6%8F%92%E4%BB%B6%E7%A4%BA%E4%BE%8B%E9%83%A8%E5%88%86">插件示例（部分）</a><ul>
+<li><a href="#sqli-bool">sqli-bool</a></li>
+<li><a href="#sqli-error">sqli-error</a></li>
+<li><a href="#sqli-time">sqli-time</a></li>
+<li><a href="#xss">xss</a></li>
+<li><a href="#leakpwd-page-passive">leakpwd-page-passive</a></li>
+<li><a href="#sensi-viewstate">sensi-viewstate</a></li>
+<li><a href="#trave-path">trave-path</a></li>
+<li><a href="#sensi-repository">sensi-repository</a></li>
+<li><a href="#sensi-js">sensi-js</a></li>
+<li><a href="#captcha-bypass">captcha-bypass</a></li>
+<li><a href="#codei-php">codei-php</a></li>
+<li><a href="#redirect">redirect</a></li>
+<li><a href="#trave-list">trave-list</a></li>
+<li><a href="#crlf_1">crlf_1</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="介绍">介绍</span></h1><p>z0scan（简称z0）是一款基于Python并兼具本地与分布式能力的主被动黑盒Web漏洞扫描工具。</p>
+<p>z0scan 的具体介绍可见 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/VyTKKaeA6rNnlKXvydLCNQ">文章</a></p>
+<h1><span id="安装">安装</span></h1><h2><span id="安装方式优劣对比">安装方式优劣对比</span></h2><table>
+<thead>
+<tr>
+<th align="center">方式</th>
+<th align="center">优势</th>
+<th align="center">劣势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">发行版本</td>
+<td align="center">高效高性能</td>
+<td align="center">自定义插件时不允许引入新的模块</td>
+</tr>
+<tr>
+<td align="center">克隆安装</td>
+<td align="center">完全的自定义</td>
+<td align="center">受Python性能约束、依赖繁多且复杂</td>
+</tr>
+<tr>
+<td align="center">容器安装</td>
+<td align="center">完全的自定义、沙盒环境</td>
+<td align="center">受Python性能约束、沙盒环境会额外占用存储</td>
+</tr>
+</tbody></table>
+<h2><span id="发行版本">✔ 发行版本</span></h2><p>获取发布版本：<a target="_blank" rel="noopener" href="https://github.com/JiuZero/z0scan/releases">下载</a></p>
+<p>想构建适合自己环境的可执行文件？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 参考网络步骤部署编译环境</span></span><br><span class="line">...</span><br><span class="line"><span class="comment"># 补齐依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="comment"># 安装编译器</span></span><br><span class="line">pip install nuitka zstandard imageio</span><br><span class="line">pip install crawlee[playwright,beautifulsoup]</span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建可执行命令</span></span><br><span class="line">python3 build.py</span><br><span class="line"><span class="comment"># 随后可执行文件会被生成至z0scan文件夹中</span></span><br><span class="line"><span class="comment"># 同时脚本会将z0scan文件压缩为一份zip文件备份</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="克隆安装">✔ 克隆安装</span></h2><p>克隆项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># GitHub</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/JiuZero/z0scan</span><br><span class="line"><span class="comment"># Gitee</span></span><br><span class="line">git <span class="built_in">clone</span> https://gitee.com/JiuZero/z0scan</span><br></pre></td></tr></table></figure>
+
+<p>安装依赖</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> z0scan</span><br><span class="line">pip install -r requirements.txt</span><br><span class="line">python3 z0.py <span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+
+<p>在诸如iSH、Termux等特殊环境下，其部分依赖由pip安装编译可能产生报错<br>解决方案如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Termux</span></span><br><span class="line">apt install python-cryptography python-lxml</span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="comment"># AlpineLinux / iSH</span></span><br><span class="line">apk add py3-cryptography py3-lxml py3-certifi py3-six py3-idna py3-certifi py3-cffi</span><br><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h2><span id="容器安装-docker">✔ 容器安装 - Docker</span></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/JiuZero/z0scan</span><br><span class="line">docker build -t z0scan .</span><br><span class="line">docker run z0scan</span><br><span class="line"><span class="comment"># python3 z0.py help</span></span><br></pre></td></tr></table></figure>
+
+<h1><span id="使用">使用</span></h1><h2><span id="参数">参数</span></h2><h3><span id="version">version</span></h3><table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">输入值示例</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#x2F;</td>
+<td align="center">&#x2F;</td>
+<td align="center">显示版本信息</td>
+</tr>
+</tbody></table>
+<h3><span id="scan-命令参数说明">scan 命令参数说明</span></h3><table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">输入值示例</th>
+<th align="center">说明</th>
+<th align="center">参数分组</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>目标选项 (Target)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>-u</code>, <code>--url</code></td>
+<td align="center"><code>http://example.com</code></td>
+<td align="center">目标URL</td>
+<td align="center">Target</td>
+</tr>
+<tr>
+<td align="center"><code>-f</code>, <code>--file</code></td>
+<td align="center"><code>urls.txt</code></td>
+<td align="center">批量扫描URL文件</td>
+<td align="center">Target</td>
+</tr>
+<tr>
+<td align="center"><code>-Rs</code>, <code>--redis-server</code></td>
+<td align="center"><code>password@host:port:db</code></td>
+<td align="center">连接到redis并作为服务端接受任务</td>
+<td align="center">Target</td>
+</tr>
+<tr>
+<td align="center"><strong>代理选项 (Proxy)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>-s</code>, <code>--server-addr</code></td>
+<td align="center"><code>127.0.0.1:5920</code></td>
+<td align="center">服务器地址格式(ip:port)</td>
+<td align="center">Proxy</td>
+</tr>
+<tr>
+<td align="center"><strong>连接选项 (Connection)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>-R</code>, <code>--reverse-client</code></td>
+<td align="center">-</td>
+<td align="center">连接到反连平台</td>
+<td align="center">Connection</td>
+</tr>
+<tr>
+<td align="center"><code>-Rc</code>, <code>--redis-client</code></td>
+<td align="center"><code>password@host:port:db</code></td>
+<td align="center">连接到redis并作为客户端发送任务</td>
+<td align="center">Connection</td>
+</tr>
+<tr>
+<td align="center"><strong>爬虫选项 (Crawler)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>--crawler</code></td>
+<td align="center">-</td>
+<td align="center">启用爬虫模式，在扫描前发现URL</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--max-tabs</code></td>
+<td align="center"><code>8</code></td>
+<td align="center">爬虫最大标签页数(默认8)</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--max-crawled</code></td>
+<td align="center"><code>200</code></td>
+<td align="center">最大爬取URL数量(默认200)</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--filter-mode</code></td>
+<td align="center"><code>smart</code></td>
+<td align="center">URL过滤模式: simple&#x2F;smart&#x2F;strict(默认smart)</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--tab-timeout</code></td>
+<td align="center"><code>20</code></td>
+<td align="center">单个标签页超时时间(秒，默认20)</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--dom-timeout</code></td>
+<td align="center"><code>5</code></td>
+<td align="center">DOM加载超时时间(秒，默认5)</td>
+<td align="center">Crawler</td>
+</tr>
+<tr>
+<td align="center"><code>--ignore-keywords</code></td>
+<td align="center"><code>logout,quit,exit</code></td>
+<td align="center">忽略包含关键词的URL(默认logout,quit,exit)</td>
+<td align="center">URL Filter</td>
+</tr>
+<tr>
+<td align="center"><code>--push-pool</code></td>
+<td align="center"><code>10</code></td>
+<td align="center">最大并发推送请求数(默认10)</td>
+<td align="center">Passive Scanning</td>
+</tr>
+<tr>
+<td align="center"><strong>认证选项 (Authentication)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>--cookies</code></td>
+<td align="center"><code>session=xxx; token=yyy</code></td>
+<td align="center">自定义cookies</td>
+<td align="center">Authentication</td>
+</tr>
+<tr>
+<td align="center"><code>--headers</code></td>
+<td align="center"><code>&#123;&quot;Authorization&quot;: &quot;Bearer xxx&quot;&#125;</code></td>
+<td align="center">自定义HTTP头部(JSON格式)</td>
+<td align="center">Authentication</td>
+</tr>
+<tr>
+<td align="center"><strong>请求选项 (Request)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>-p</code>, <code>--proxy</code></td>
+<td align="center"><code>http://127.0.0.1:8080</code> 或 <code>proxy.txt</code></td>
+<td align="center">代理设置(支持http&#x2F;https&#x2F;socks5&#x2F;socks4)，支持从文件读取</td>
+<td align="center">Request</td>
+</tr>
+<tr>
+<td align="center"><code>--timeout</code></td>
+<td align="center"><code>10</code></td>
+<td align="center">连接超时时间(默认config.TIMEOUT)</td>
+<td align="center">Request</td>
+</tr>
+<tr>
+<td align="center"><code>--retry</code></td>
+<td align="center"><code>3</code></td>
+<td align="center">超时重试次数(默认config.RETRY)</td>
+<td align="center">Request</td>
+</tr>
+<tr>
+<td align="center"><code>--random-agent</code></td>
+<td align="center">-</td>
+<td align="center">使用随机User-Agent</td>
+<td align="center">Request</td>
+</tr>
+<tr>
+<td align="center"><strong>输出选项 (Output)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>--html</code></td>
+<td align="center">-</td>
+<td align="center">输出HTML报告到默认目录</td>
+<td align="center">Output</td>
+</tr>
+<tr>
+<td align="center"><code>--json</code></td>
+<td align="center"><code>report.json</code></td>
+<td align="center">指定JSON报告输出路径</td>
+<td align="center">Output</td>
+</tr>
+<tr>
+<td align="center"><strong>优化选项 (Optimization)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>-t</code>, <code>--threads</code></td>
+<td align="center"><code>50</code></td>
+<td align="center">插件任务线程数(默认config.THREADS)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-l</code>, <code>--level</code></td>
+<td align="center"><code>2</code></td>
+<td align="center">检测级别(0-3，默认config.LEVEL)，级别3会忽略指纹引导的payload筛选</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-r</code>, <code>--risk</code></td>
+<td align="center"><code>&quot;0,1,2&quot;</code></td>
+<td align="center">设置初始化扫描器的威胁级别: [0, 1, 2, 3] (默认config.RISK)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-i</code>, <code>--includes</code></td>
+<td align="center"><code>&quot;com,cn&quot;</code></td>
+<td align="center">白名单，仅对包含关键字的URL的扫描</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-e</code>, <code>--excludes</code></td>
+<td align="center"><code>&quot;edu.cn,gov.cn&quot;</code></td>
+<td align="center">黑名单，排除对包含关键字的URL的扫描</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-iw</code>, <code>--ignore-waf</code></td>
+<td align="center">-</td>
+<td align="center">忽略WAF检测</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-sp</code>, <code>--skip-pocscan</code></td>
+<td align="center">-</td>
+<td align="center">跳过指纹针对性POCs检测</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-sc</code>, <code>--scan-cookie</code></td>
+<td align="center">-</td>
+<td align="center">启用Cookie扫描</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-pt</code>, <code>--plugin-threads</code></td>
+<td align="center"><code>3</code></td>
+<td align="center">插件内线程数(默认config.PLUGIN_THREADS)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-cp</code>, <code>--console-port</code></td>
+<td align="center"><code>5920</code></td>
+<td align="center">控制台端口(默认config.CONSOLE_PORT)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>-dl</code>, <code>--deduplicate-level</code></td>
+<td align="center"><code>1</code></td>
+<td align="center">去重策略级别: 0-2 (默认config.DEDUPLICATE_LEVEL)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>--disable</code></td>
+<td align="center"><code>&quot;xss,sqli&quot;</code></td>
+<td align="center">禁用指定扫描器(默认config.DISLOAD)</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>--enable</code></td>
+<td align="center"><code>&quot;rce,ssrf&quot;</code></td>
+<td align="center">仅启用指定扫描器</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>--ipv6</code></td>
+<td align="center">-</td>
+<td align="center">优先使用IPV6解析</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>--redis-clean</code></td>
+<td align="center">-</td>
+<td align="center">清理redis数据库的队列记录</td>
+<td align="center">Optimization</td>
+</tr>
+<tr>
+<td align="center"><code>--debug</code></td>
+<td align="center"><code>2</code></td>
+<td align="center">异常显示级别(1-3)</td>
+<td align="center">Optimization</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意</p>
+<ol>
+<li><code>--enable</code>、<code>--disable</code>与<code>--risk</code> 仅作用于初始化加载中的筛选，在被动扫描中用户可以通过控制台任意启闭插件</li>
+<li>扫描优先级：pocs &gt; PerDomain &gt; PerPage &gt; PerDir &gt; PerHost</li>
+<li>分布式被动扫描时 Z0Scan 并不会自动清理队列，请使用<code>--redis-clean</code></li>
+<li>Json 为必选的报告生成类型，在扫描过程中Json文本中会因缺少<code>]</code>闭合而导致解析失败</li>
+<li>在白名单规则对URL筛选后再交由黑名单二级筛选</li>
+<li>ObserverWard 与 Nuclei 的联动需要将 ObserverWard 与 Nuclei 都配置到系统环境变量中</li>
+</ol>
+</blockquote>
+<p>ObserverWard 与 Nuclei 的联动部署</p>
+<ol>
+<li>从GitHub上的项目发布页上获取最新的 Nuclei 与 ObserverWard 的发行包：<br><a target="_blank" rel="noopener" href="https://github.com/emo-crab/observer_ward/releases/">https://github.com/emo-crab/observer_ward&#x2F;releases&#x2F;</a><br><a target="_blank" rel="noopener" href="https://github.com/projectdiscovery/nuclei/releases">https://github.com/projectdiscovery/nuclei/releases</a></li>
+<li>配置到系统环境变量中<blockquote>
+<p>注意 ObserverWard 可执行包需要命名为 observerward</p>
+</blockquote>
+</li>
+<li>配置plugins&amp;fingerprints<br>执行：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">observerward --update-plugin</span><br><span class="line">observerward -u</span><br></pre></td></tr></table></figure>
+
+<h3><span id="list">list</span></h3><table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">输入值示例</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#x2F;</td>
+<td align="center">&#x2F;</td>
+<td align="center">列出插件、指纹与字典信息</td>
+</tr>
+</tbody></table>
+<h3><span id="reverse">reverse</span></h3><table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">输入值示例</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#x2F;</td>
+<td align="center">&#x2F;</td>
+<td align="center">启动反连平台</td>
+</tr>
+</tbody></table>
+<h2><span id="z0-scan-命令使用示例">z0 scan 命令使用示例</span></h2><h3><span id="基础扫描模式">基础扫描模式</span></h3><p><strong>单目标扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>批量目标扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -f urls.txt -s <span class="string">&quot;127.0.0.1:5920&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>使用代理扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 推荐由Burp/Yakit发起请求流量的主动检测</span></span><br><span class="line">z0 scan -s 127.0.0.1:5920</span><br></pre></td></tr></table></figure>
+
+<img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/example.png" class title="基础扫描示例图">
+
+<h3><span id="爬虫模式扫描">爬虫模式扫描</span></h3><p><strong>基础爬虫扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --crawler</span><br></pre></td></tr></table></figure>
+
+<p><strong>高级爬虫配置：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --crawler \</span><br><span class="line">  --max-tabs 12 \</span><br><span class="line">  --max-crawled 500 \</span><br><span class="line">  --tab-timeout 30 \</span><br><span class="line">  --dom-timeout 10 \</span><br><span class="line">  --push-pool 15</span><br></pre></td></tr></table></figure>
+
+<p><strong>带认证的爬虫扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --crawler \</span><br><span class="line">  --cookies <span class="string">&quot;session=abc123; token=xyz789&quot;</span> \</span><br><span class="line">  --headers <span class="string">&#x27;&#123;&quot;Authorization&quot;: &quot;Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>自定义URL过滤：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --crawler \</span><br><span class="line">  --ignore-keywords <span class="string">&quot;logout,admin,delete&quot;</span> \</span><br><span class="line">  --filter-mode <span class="string">&quot;strict&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="redis-集成模式">Redis 集成模式</span></h3><p><strong>作为Redis服务端：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -Rs <span class="string">&quot;password@redis-host:6379:0&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>作为Redis客户端：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -Rc <span class="string">&quot;password@redis-host:6379:0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="输出选项">输出选项</span></h3><p><strong>生成HTML报告：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --html</span><br></pre></td></tr></table></figure>
+
+<p><strong>生成JSON报告：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --json <span class="string">&quot;scan_report.json&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="优化配置示例">优化配置示例</span></h3><p><strong>高性能扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> \</span><br><span class="line">  -t 50 \</span><br><span class="line">  -pt 5 \</span><br><span class="line">  -l 3 \</span><br><span class="line">  -r <span class="string">&quot;0,1,2,3&quot;</span> \</span><br><span class="line">  --<span class="built_in">timeout</span> 10 \</span><br><span class="line">  --retry 3</span><br></pre></td></tr></table></figure>
+
+<p><strong>针对性扫描：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> \</span><br><span class="line">  -i <span class="string">&quot;api,admin&quot;</span> \</span><br><span class="line">  -e <span class="string">&quot;static,image&quot;</span> \</span><br><span class="line">  --<span class="built_in">enable</span> <span class="string">&quot;sqli,xss,rce&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="调试模式">调试模式</span></h3><p><strong>开启调试信息：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0 scan -u <span class="string">&quot;http://example.com&quot;</span> -s <span class="string">&quot;127.0.0.1:5920&quot;</span> --debug 3</span><br></pre></td></tr></table></figure>
+
+<h3><span id="注意事项">注意事项</span></h3><ol>
+<li><strong>必需参数</strong>：所有扫描模式都需要至少一个目标来源（<code>-u</code>、<code>-f</code> 或 <code>-Rs</code>）</li>
+<li><strong>爬虫模式</strong>：必须同时使用 <code>-u</code> 和 <code>-s</code> 参数</li>
+<li><strong>服务器地址</strong>：<code>-s</code> 参数指定被动扫描代理服务器地址</li>
+<li><strong>线程控制</strong>：根据目标服务器性能调整线程数，避免过载</li>
+</ol>
+<h1><span id="工作流程说明">工作流程说明</span></h1><ol>
+<li>finger指纹会将主页所检索到的指纹进行报告，除外还会对每一响应页面进行指纹匹配并对应性去重载入POCs</li>
+<li>为减少内存负担，Z0Scan在初始化过程中仅对pocs进行信息记录。其会在指纹检出后主动载入插件并运行。</li>
+<li>Z0Scan 在被动扫描下并不会主动触发页面功能点&#x2F;爬取URL</li>
+<li>控制台的“暂停”用于暂停扫描任务，但仍会进行流量队列！这项设计是为了避免扫描器流量与代理流量间的竞争。</li>
+<li>IP ban 判断：Z0Scan 会在每次请求前统计一次最近10次请求中的失败个数，如大于您配置的值（BLOCK_COUNT），它将判断为被ban而在后续扫描过程中不对该网站产生请求。</li>
+</ol>
+<h1><span id="插件示例部分">插件示例（部分）</span></h1><p>示例目标均为内网&#x2F;外网公开靶场</p>
+<h2><span id="sqli-bool">sqli-bool</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-bool.png" class title="布尔盲注插件效果图">
+
+<h2><span id="sqli-error">sqli-error</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-error.png" class title="报错注入插件效果图">
+
+<h2><span id="sqli-time">sqli-time</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sqli-time.png" class title="时间盲注插件效果图">
+
+<h2><span id="xss">xss</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/xss.png" class title="XSS漏洞检测效果图">
+
+<h2><span id="leakpwd-page-passive">leakpwd-page-passive</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/leakpwd-page-passive.png" class title="页面密码泄露检测效果图">
+
+<h2><span id="sensi-viewstate">sensi-viewstate</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-viewstate.png" class title="ViewState敏感信息检测效果图">
+
+<h2><span id="trave-path">trave-path</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/trave-path.png" class title="路径穿越漏洞检测效果图">
+
+<h2><span id="sensi-repository">sensi-repository</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-repository.png" class title="代码仓库泄露检测效果图">
+
+<h2><span id="sensi-js">sensi-js</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/sensi-js.png" class title="JS敏感信息提取效果图">
+
+<h2><span id="captcha-bypass">captcha-bypass</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/captcha-bypass.png" class title="验证码绕过检测效果图">
+
+<h2><span id="codei-php">codei-php</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/codei-php.png" class title="PHP代码注入检测效果图">
+
+<h2><span id="redirect">redirect</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/redirect.png" class title="任意跳转漏洞检测效果图">
+
+<h2><span id="trave-list">trave-list</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/trave-list.png" class title="目录遍历检测效果图">
+
+<h2><span id="crlf_1">crlf_1</span></h2><img src="/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/crlf_1.png" class title="CRLF注入检测效果图">
+    </div>
+    <footer class="article-footer">
+      
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/z0scan/" rel="tag" title="z0scan">z0scan</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/%E5%85%B6%E4%BB%96/" rel="tag" title="其他">其他</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="https://img.8845.top/img2/133074326_p0.jpg" data-sizes="auto" alt="SQL注入绕过笔记" class="lazyload">
+        <a href="/en/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/" aria-label="Prev: SQL注入绕过笔记" title="Prev: SQL注入绕过笔记"></a>
+        <div class="article-nav-caption">Prev</div>
+        <h3 class="article-nav-title">
+            SQL注入绕过笔记
+        </h3>
+      </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        Powered by&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        10.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        00:50
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">安装</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">安装方式优劣对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">✔ 发行版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.3.</span> <span class="toc-text">✔ 克隆安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.4.</span> <span class="toc-text">✔ 容器安装 - Docker</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.1.</span> <span class="toc-text">version</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.2.</span> <span class="toc-text">scan 命令参数说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.3.</span> <span class="toc-text">list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.4.</span> <span class="toc-text">reverse</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">z0 scan 命令使用示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.1.</span> <span class="toc-text">基础扫描模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.2.</span> <span class="toc-text">爬虫模式扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.3.</span> <span class="toc-text">Redis 集成模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.4.</span> <span class="toc-text">输出选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.5.</span> <span class="toc-text">优化配置示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.6.</span> <span class="toc-text">调试模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">工作流程说明</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">插件示例（部分）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">sqli-bool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">sqli-error</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.3.</span> <span class="toc-text">sqli-time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.4.</span> <span class="toc-text">xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.5.</span> <span class="toc-text">leakpwd-page-passive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.6.</span> <span class="toc-text">sensi-viewstate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.7.</span> <span class="toc-text">trave-path</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.8.</span> <span class="toc-text">sensi-repository</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.9.</span> <span class="toc-text">sensi-js</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.10.</span> <span class="toc-text">captcha-bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.11.</span> <span class="toc-text">codei-php</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.12.</span> <span class="toc-text">redirect</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.13.</span> <span class="toc-text">trave-list</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.14.</span> <span class="toc-text">crlf_1</span></a></li></ol></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+  
+<script src="https://npm.webcache.cn/material-theme@1.0.0/dist/material-theme.umd.js" integrity="sha384-vLev0II0HKFaxkcm+&#x2F;7kX5IGwVFBASkGchU311wmU&#x2F;veIj2bB0UcBkQbW6yw2asK" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "Z0Scan - 使用指南",
+          url: "https://jiuzero.github.io/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/",
+          excerpt: " Life is short. You need z0scan. ",
+          description: "",
+          stripContent: " Life is short. You need z0scan.       介绍 安装 安装方式优劣对比 ✔ 发行版本 ✔ 克隆安装 ✔ 容器安装 - Docker   使用 参数 version scan 命令参数说明 list reverse   z0 scan 命令使用示例 基础扫描模式 爬虫模式扫描 Redis 集成模式 输出选项 优化配置示例 调试模式 注意事项     工作流程说明 插件示例（部分） sqli-bool sqli-error sqli-time xss leakpw",
+          date: "Fri Jun 13 2025 00:00:00 GMT+0800",
+          updated: "Sat Jul 04 2026 00:25:21 GMT+0800",
+          cover: "https://img.8845.top/img2/G5ZJOsgb0AEGSHm.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>

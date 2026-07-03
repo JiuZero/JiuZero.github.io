@@ -1,0 +1,1232 @@
+  <!DOCTYPE html>
+  <html lang="en"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    Z0Scan - 开发指南 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="愿你星河常明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Z0Scan - 开发指南">
+<meta property="og:url" content="https://jiuzero.github.io/en/2025/11/09/z0scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="愿你星河常明">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T16:24:52.891Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="z0scan">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">Loading...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/en/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">Home</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">Archives</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">About</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">Friend</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed" aria-label="RSS Feed" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="Search" aria-label="Search"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">English</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" aria-selected="false">简体中文</li>
+            <li data-value="en" role="option" class="selected" aria-selected="true">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2025/11/09/z0scan-开发指南/';
+              langMap['en'] = '/en/2025/11/09/z0scan-开发指南/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img crossorigin="anonymous" fetchpriority="high" src="https://img.8845.top/img2/126185064.jpg" alt="Z0Scan - 开发指南">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">Z0Scan - 开发指南</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">前言说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">fingers.db 指纹开发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">Scanner 命名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">内置模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">api</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">api&#x2F;VulType</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">api&#x2F;Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.3.</span> <span class="toc-text">api&#x2F;conf.level</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.4.</span> <span class="toc-text">api&#x2F;conf.risk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.5.</span> <span class="toc-text">api&#x2F;conf.dicts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.6.</span> <span class="toc-text">api&#x2F;PLACE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.7.</span> <span class="toc-text">api&#x2F;Threads</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.8.</span> <span class="toc-text">api&#x2F;chat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">继承PluginBase</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.1.</span> <span class="toc-text">self.fingerprints</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.2.</span> <span class="toc-text">self.requests</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.3.</span> <span class="toc-text">self.response</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.1.</span> <span class="toc-text">self.generateItemdatas()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.2.</span> <span class="toc-text">self.insertPayload({“key”: k, “value”: v, “position”: position, “payload”: _payload})</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.3.</span> <span class="toc-text">self.req(position, payload)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.3.</span> <span class="toc-text">返回</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.3.1.</span> <span class="toc-text">self.generate_result()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">requests</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">编写示范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">继承_PluginBase</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">9.1.</span> <span class="toc-text">数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.1.1.</span> <span class="toc-text">self.host</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.1.2.</span> <span class="toc-text">self.sockrecv</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">9.2.</span> <span class="toc-text">返回</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.2.1.</span> <span class="toc-text">self.generate_result()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">编写示范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">使用AI编写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">12.</span> <span class="toc-text">扫描器集成</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-z0scan-开发指南" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2025-11-08T16:00:00.000Z" itemprop="datePublished">2025-11-09</time>
+    <time style="display: none;" id="post-update-time">2026-07-04</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-07-03T16:24:52.891Z" itemprop="dateModified">2026-07-04</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <blockquote>
+<p>愿你星河常明</p>
+</blockquote>
+<span id="more"></span>
+
+<!-- toc -->
+
+<ul>
+<li><a href="#%E5%89%8D%E8%A8%80%E8%AF%B4%E6%98%8E">前言说明</a></li>
+<li><a href="#fingersdb-%E6%8C%87%E7%BA%B9%E5%BC%80%E5%8F%91">fingers.db 指纹开发</a></li>
+<li><a href="#scanner-%E5%91%BD%E5%90%8D">Scanner 命名</a></li>
+<li><a href="#%E5%86%85%E7%BD%AE%E6%A8%A1%E5%9D%97">内置模块</a></li>
+<li><a href="#api">api</a><ul>
+<li><a href="#apivultype">api&#x2F;VulType</a></li>
+<li><a href="#apitype">api&#x2F;Type</a></li>
+<li><a href="#apiconflevel">api&#x2F;conf.level</a></li>
+<li><a href="#apiconfrisk">api&#x2F;conf.risk</a></li>
+<li><a href="#apiconfdicts">api&#x2F;conf.dicts</a></li>
+<li><a href="#apiplace">api&#x2F;PLACE</a></li>
+<li><a href="#apithreads">api&#x2F;Threads</a></li>
+<li><a href="#apichat">api&#x2F;chat</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BB%A7%E6%89%BFpluginbase">继承PluginBase</a><ul>
+<li><a href="#%E6%95%B0%E6%8D%AE">数据</a></li>
+<li><a href="#%E8%A7%A3%E6%9E%90">解析</a></li>
+<li><a href="#%E8%BF%94%E5%9B%9E">返回</a></li>
+</ul>
+</li>
+<li><a href="#requests">requests</a></li>
+<li><a href="#%E7%BC%96%E5%86%99%E7%A4%BA%E8%8C%83">编写示范</a></li>
+<li><a href="#%E7%BB%A7%E6%89%BF_pluginbase">继承_PluginBase</a><ul>
+<li><a href="#%E6%95%B0%E6%8D%AE-1">数据</a></li>
+<li><a href="#%E8%BF%94%E5%9B%9E-1">返回</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BC%96%E5%86%99%E7%A4%BA%E8%8C%83-1">编写示范</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8ai%E7%BC%96%E5%86%99">使用AI编写</a></li>
+<li><a href="#%E6%89%AB%E6%8F%8F%E5%99%A8%E9%9B%86%E6%88%90">扫描器集成</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="前言说明">前言说明</span></h2><ol>
+<li><strong>插件划分</strong><br>Z0Scan 的 Scanners 分类为：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. PerPage: 基于页面层面检测的插件集</span><br><span class="line">2. PerDir: 基于子路径层面检测的插件集</span><br><span class="line">3. PerDomain: 基于域名层面检测的插件集</span><br><span class="line">4. PerHost: 基于主机层面检测的插件集</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>指纹划分</strong><br>Z0Scan 指纹集包括 waf 以及 finger，它们被存储在 <code>data/fingers.db</code> 中<br>其中 finger 是为 Scanner 的精准切入而诞生的</li>
+</ol>
+<h2><span id="fingersdb-指纹开发">fingers.db 指纹开发</span></h2><p>语法规则：<br>匹配规则：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. body: 在响应体文本中匹配</span><br><span class="line">2. title: 在标题中匹配</span><br><span class="line">3. header: 在响应头部中匹配（包括键与值）</span><br><span class="line">4. path: 在路径中匹配，如：/admin/main.php</span><br><span class="line">5. body_regex: 在响应体文本中使用正则表达式匹配</span><br><span class="line">6. title_regex: 在标题中使用正则表达式匹配</span><br><span class="line">7. header_regex: 在响应头部中使用正则表达式匹配（包括键与值）</span><br><span class="line">8. path_regex: 在路径中使用正则表达式匹配，如：/admin/main.php</span><br></pre></td></tr></table></figure>
+
+<p>逻辑符：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. &amp;&amp;: 并且</span><br><span class="line">2. ||: 或</span><br><span class="line">3. (): 优先</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">headers=&quot;Server: thinkphp&quot; || body=&quot;Thinkphp&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>关于WAF指纹<br>在 <code>lib/core/finger.py</code> 中会将特殊响应状态码及响应超时判断为存在WAF</p>
+</blockquote>
+<h2><span id="scanner-命名">Scanner 命名</span></h2><p>按照以下命名规则命名：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">漏洞类型(简写) + （指纹对象）+ 简述</span><br></pre></td></tr></table></figure>
+
+<p>如 PerPage&#x2F;PerDir&#x2F;PerDomain 下存在同名插件，<br>在单个插件名后按照<code>PerPage:1,PerDir:2,PerDomain:3</code>在名末下划线连接，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PerPage 中的 sensi-backup：sensi-backup_1</span><br></pre></td></tr></table></figure>
+
+<p>漏洞类型分类与简写形式可参考<code>api/VulType</code>部分</p>
+<h2><span id="内置模块">内置模块</span></h2><h2><span id="api">api</span></h2><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+<th align="center">使用</th>
+<th align="center">必选&#x2F;可选</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">generateResponse</td>
+<td align="center">用于报告中响应体的生成</td>
+<td align="center">generateResponse(r) # r&#x3D;request.get(…)</td>
+<td align="center">必选</td>
+</tr>
+<tr>
+<td align="center">random_num</td>
+<td align="center">生成随机数</td>
+<td align="center">&#x2F;</td>
+<td align="center">可选</td>
+</tr>
+<tr>
+<td align="center">random_str</td>
+<td align="center">生成随机字符串</td>
+<td align="center">&#x2F;</td>
+<td align="center">可选</td>
+</tr>
+<tr>
+<td align="center">VulType</td>
+<td align="center">对漏洞类型的选定</td>
+<td align="center">见api&#x2F;VulType</td>
+<td align="center">必选</td>
+</tr>
+<tr>
+<td align="center">Type</td>
+<td align="center">对扫描类型的选定</td>
+<td align="center">见api&#x2F;Type</td>
+<td align="center">必选</td>
+</tr>
+<tr>
+<td align="center">PluginBase</td>
+<td align="center">被继承以获取数据&#x2F;解析数据&#x2F;返回结果</td>
+<td align="center">class Z0SCAN(PluginBase)</td>
+<td align="center">PerPage等必选</td>
+</tr>
+<tr>
+<td align="center">_PluginBase</td>
+<td align="center">被继承以获取数据&#x2F;解析数据&#x2F;返回结果</td>
+<td align="center">class Z0SCAN(_PluginBase)</td>
+<td align="center">PerHost必选</td>
+</tr>
+<tr>
+<td align="center">conf</td>
+<td align="center">储存一些命令行参数值</td>
+<td align="center">主要使用level，见api&#x2F;conf.level</td>
+<td align="center">必选</td>
+</tr>
+<tr>
+<td align="center">PLACE</td>
+<td align="center">对漏洞注入点（请求中的可控点）的选定</td>
+<td align="center">见api&#x2F;PLACE</td>
+<td align="center">必选</td>
+</tr>
+<tr>
+<td align="center">Threads</td>
+<td align="center">插件内置线程（针对参数的多线程）</td>
+<td align="center">见api&#x2F;Threads</td>
+<td align="center">可选</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2fvultype">api&#x2F;VulType</span></h3><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+<th align="center">(插件命名)简写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">CMD_INNJECTION</td>
+<td align="center">命令注入漏洞</td>
+<td align="center">cmdi</td>
+</tr>
+<tr>
+<td align="center">CODE_INJECTION</td>
+<td align="center">代码注入漏洞</td>
+<td align="center">codei</td>
+</tr>
+<tr>
+<td align="center">XSS</td>
+<td align="center">XSS跨站脚本攻击</td>
+<td align="center">xss</td>
+</tr>
+<tr>
+<td align="center">SQLI</td>
+<td align="center">SQL注入漏洞</td>
+<td align="center">sqli</td>
+</tr>
+<tr>
+<td align="center">TRAVERSAL</td>
+<td align="center">遍历漏洞</td>
+<td align="center">trave</td>
+</tr>
+<tr>
+<td align="center">XXE</td>
+<td align="center">XML外部实体注入</td>
+<td align="center">xxe</td>
+</tr>
+<tr>
+<td align="center">SSRF</td>
+<td align="center">服务器端请求伪造</td>
+<td align="center">ssrf</td>
+</tr>
+<tr>
+<td align="center">CSRF</td>
+<td align="center">CSRF</td>
+<td align="center">csrf</td>
+</tr>
+<tr>
+<td align="center">REDIRECT</td>
+<td align="center">重定向漏洞</td>
+<td align="center">redirect</td>
+</tr>
+<tr>
+<td align="center">WEAK_PASSWORD</td>
+<td align="center">弱口令</td>
+<td align="center">weakpwd</td>
+</tr>
+<tr>
+<td align="center">CRLF</td>
+<td align="center">换行注入</td>
+<td align="center">crlf</td>
+</tr>
+<tr>
+<td align="center">SENSITIVE</td>
+<td align="center">敏感信息泄露漏洞</td>
+<td align="center">sensi</td>
+</tr>
+<tr>
+<td align="center">SSTI</td>
+<td align="center">服务器端模板注入</td>
+<td align="center">ssti</td>
+</tr>
+<tr>
+<td align="center">UNAUTH</td>
+<td align="center">未授权访问</td>
+<td align="center">unauth</td>
+</tr>
+<tr>
+<td align="center">FILEUPLOAD</td>
+<td align="center">文件上传</td>
+<td align="center">upload</td>
+</tr>
+<tr>
+<td align="center">CORS</td>
+<td align="center">CORS漏洞</td>
+<td align="center">cors</td>
+</tr>
+<tr>
+<td align="center">OTHER</td>
+<td align="center">其它漏洞</td>
+<td align="center">rce,jndi…</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2ftype">api&#x2F;Type</span></h3><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ANALYZE</td>
+<td align="center">被动分析发现</td>
+</tr>
+<tr>
+<td align="center">REQUEST</td>
+<td align="center">主动请求发现</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2fconflevel">api&#x2F;conf.level</span></h3><p>扫描深度（反映请求量）</p>
+<table>
+<thead>
+<tr>
+<th align="center">值</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">纯被动分析模式，不做任何请求</td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">最低请求量的扫描，最低的业务影响</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">中等请求量的扫描，Payload多为通用Top5</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">大量请求扫描，Payload覆盖面更广</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2fconfrisk">api&#x2F;conf.risk</span></h3><p>需要扫描的漏洞危害程度</p>
+<table>
+<thead>
+<tr>
+<th align="center">值</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">-1</td>
+<td align="center">难以利用的极低危常见漏洞</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">可能产生1~3级危害的辅助性信息</td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">低危漏洞</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">中危漏洞</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">高危漏洞</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2fconfdicts">api&#x2F;conf.dicts</span></h3><p>被动态导入的字典（dicts）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 dicts 目录下放置 example.txt</span></span><br><span class="line">&gt; <span class="built_in">print</span>(conf.dicts[<span class="string">&quot;example&quot;</span>])</span><br><span class="line">[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<h3><span id="apix2fplace">api&#x2F;PLACE</span></h3><p>参数位置枚举类，定义参数在HTTP请求中的不同位置。<br>基础位置类型</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PARAM</td>
+<td align="center">URL后参数部分 (如: ?key&#x3D;value)</td>
+</tr>
+<tr>
+<td align="center">DATA</td>
+<td align="center">在BODY中传递的参数</td>
+</tr>
+<tr>
+<td align="center">COOKIE</td>
+<td align="center">COOKIE中传递的参数</td>
+</tr>
+<tr>
+<td align="center">URL</td>
+<td align="center">伪静态参数 (如: &#x2F;user&#x2F;123)</td>
+</tr>
+</tbody></table>
+<p>DATA子类型<br>DATA类型下包含不同数据格式的参数位置：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">NORMAL_DATA</td>
+<td align="center">常规POST传参格式中的参数 (application&#x2F;x-www-form-urlencoded)</td>
+</tr>
+<tr>
+<td align="center">JSON_DATA</td>
+<td align="center">JSON格式中的参数 (application&#x2F;json)</td>
+</tr>
+<tr>
+<td align="center">XML_DATA</td>
+<td align="center">XML格式中的参数 (text&#x2F;xml, application&#x2F;xml)</td>
+</tr>
+<tr>
+<td align="center">MULTIPART_DATA</td>
+<td align="center">MULTIPART格式中的参数 (multipart&#x2F;form-data)</td>
+</tr>
+<tr>
+<td align="center">ARRAY_LIKE_DATA</td>
+<td align="center">ARRAY_LIKE格式中的参数</td>
+</tr>
+<tr>
+<td align="center">SOAP_DATA</td>
+<td align="center">SOAP_DATA格式中的参数</td>
+</tr>
+</tbody></table>
+<p>嵌套参数位置<br>值中的二级参数：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">FORM_VALUE_JSON</td>
+<td align="center">表单值中的JSON参数</td>
+</tr>
+<tr>
+<td align="center">PARAM_VALUE_JSON</td>
+<td align="center">URL参数值中的JSON参数</td>
+</tr>
+<tr>
+<td align="center">COOKIE_JSON_VALUE</td>
+<td align="center">Cookie值中的JSON参数</td>
+</tr>
+</tbody></table>
+<h3><span id="apix2fthreads">api&#x2F;Threads</span></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">z0thread = Threads(name=<span class="string">&quot;sqli-error&quot;</span>) <span class="comment"># name : 插件名</span></span><br><span class="line">z0thread.submit(task_func, task_data, args, kwargs)</span><br><span class="line"><span class="comment"># task_func: 要执行的任务函数</span></span><br><span class="line"><span class="comment"># task_data: 任务数据迭代器，每个元素会作为task_func的第一个参数</span></span><br><span class="line"><span class="comment"># args: 传递给task_func的额外位置参数</span></span><br><span class="line"><span class="comment"># kwargs: 传递给task_func的额外关键字参数 (可选)</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="apix2fchat">api&#x2F;chat</span></h3><p>AI交互模块</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_ai_validate_with_context</span>(<span class="params">self, context, name, pattern</span>):</span><br><span class="line">    <span class="comment"># 输入尽量使用英文并规范其输出</span></span><br><span class="line">    prompt = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Please analyze whether the marked sensitive information in the following JavaScript code is genuine:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        <span class="subst">&#123;context&#125;</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Rule Name: <span class="subst">&#123;name&#125;</span></span></span><br><span class="line"><span class="string">        Matching mode: <span class="subst">&#123;pattern&#125;</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Key points to consider:</span></span><br><span class="line"><span class="string">        1. The context in which the information appears</span></span><br><span class="line"><span class="string">        2. Whether it&#x27;s in comments or test data</span></span><br><span class="line"><span class="string">        3. Whether it matches common patterns for this type of sensitive information</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Respond strictly in the following JSON format:</span></span><br><span class="line"><span class="string">        &#123;&#123;</span></span><br><span class="line"><span class="string">            &quot;valid&quot;: boolean,    // Whether it&#x27;s valid sensitive info</span></span><br><span class="line"><span class="string">            &quot;confidence&quot;: float, // Confidence level (0.0~1.0)</span></span><br><span class="line"><span class="string">            &quot;type&quot;: string,     // Type of sensitive info (e.g., API key, password)</span></span><br><span class="line"><span class="string">            &quot;reason&quot;: string    // Detailed analysis rationale</span></span><br><span class="line"><span class="string">        &#125;&#125;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 发送对话</span></span><br><span class="line">        response = chat(prompt)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> response:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            analysis = json.loads(response.content) <span class="comment"># 解析回答</span></span><br><span class="line">            <span class="comment"># 置信度阈值到0.8</span></span><br><span class="line">            <span class="keyword">if</span> analysis.get(<span class="string">&#x27;valid&#x27;</span>, <span class="literal">False</span>) <span class="keyword">and</span> analysis.get(<span class="string">&#x27;confidence&#x27;</span>, <span class="number">0</span>) &gt; <span class="number">0.8</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span>, analysis.get(<span class="string">&#x27;type&#x27;</span>, <span class="string">&#x27;&#x27;</span>), analysis.get(<span class="string">&#x27;reason&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">        <span class="keyword">except</span> json.JSONDecodeError:</span><br><span class="line">            logger.error(<span class="string">f&quot;AI response format error, raw response: <span class="subst">&#123;response.content&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">            </span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error during AI validation: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="继承pluginbase">继承PluginBase</span></h2><blockquote>
+<p>用于编写 PerPage, PerDir, PerDomain</p>
+</blockquote>
+<h3><span id="数据">数据</span></h3><h4><span id="selffingerprints">self.fingerprints</span></h4><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">waf</td>
+<td align="center">str&#x2F;bool</td>
+<td align="center">WAF名称（未检测到WAF时为False）</td>
+</tr>
+<tr>
+<td align="center">fingers</td>
+<td align="center">dict</td>
+<td align="center">指纹集（包括os、language、cms…）</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; <span class="built_in">print</span>(<span class="variable language_">self</span>.fingerprints.waf)</span><br><span class="line"><span class="string">&quot;WTS&quot;</span> <span class="comment"># 没有WAF时为False</span></span><br><span class="line">&gt;&gt; <span class="built_in">print</span>(<span class="variable language_">self</span>.fingerprints.fingers)</span><br><span class="line">[<span class="string">&quot;thinkphp&quot;</span>, <span class="string">&quot;nginx&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<h4><span id="selfrequests">self.requests</span></h4><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+<th align="center">示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">url</td>
+<td align="center">str</td>
+<td align="center">完整的URL（包含GET参数）</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://www.example.com/a/file.php?id=1">https://www.example.com:443/a/file.php?id=1</a></td>
+</tr>
+<tr>
+<td align="center">suffix</td>
+<td align="center">str</td>
+<td align="center">文件后缀</td>
+<td align="center">.php</td>
+</tr>
+<tr>
+<td align="center">protocol</td>
+<td align="center">str</td>
+<td align="center">请求协议</td>
+<td align="center">http</td>
+</tr>
+<tr>
+<td align="center">port</td>
+<td align="center">int</td>
+<td align="center">服务端口</td>
+<td align="center">8888</td>
+</tr>
+<tr>
+<td align="center">hostname</td>
+<td align="center">str</td>
+<td align="center">域名（不包括端口）</td>
+<td align="center"><a target="_blank" rel="noopener" href="http://www.myscantest.com/">www.myscantest.com</a></td>
+</tr>
+<tr>
+<td align="center">netloc</td>
+<td align="center">str</td>
+<td align="center">包含协议与端口信息的域名</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://www.example.com/">https://www.example.com:443</a></td>
+</tr>
+<tr>
+<td align="center">raw</td>
+<td align="center">str</td>
+<td align="center">原始的请求包</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">method</td>
+<td align="center">str</td>
+<td align="center">请求方法</td>
+<td align="center">GET</td>
+</tr>
+<tr>
+<td align="center">headers</td>
+<td align="center">dict</td>
+<td align="center">请求头字典</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">cookies</td>
+<td align="center">dict</td>
+<td align="center">COOKIE</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">params</td>
+<td align="center">dict</td>
+<td align="center">在URL中包含的参数（不含伪静态）</td>
+<td align="center">{‘id’: ‘1’}</td>
+</tr>
+<tr>
+<td align="center">post_hint</td>
+<td align="center">str</td>
+<td align="center">POST请求包类型</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">data</td>
+<td align="center">dict</td>
+<td align="center">POST数据</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">path</td>
+<td align="center">str</td>
+<td align="center">路径</td>
+<td align="center">&#x2F;a&#x2F;file.php</td>
+</tr>
+<tr>
+<td align="center">body</td>
+<td align="center">str</td>
+<td align="center">原始请求头</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">ip</td>
+<td align="center">str</td>
+<td align="center">由域名解析为IP</td>
+<td align="center">59.20.13.14</td>
+</tr>
+</tbody></table>
+<p>注: data、params、cookies、headers与body允许直接requests构造请求<br>self.requests 仅负责常规解析，如需解析伪静态及xml等格式请求中的参数，见self.generateItemdatas()</p>
+<h4><span id="selfresponse">self.response</span></h4><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+<th align="center">示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">status_code</td>
+<td align="center">int</td>
+<td align="center">返回状态码</td>
+<td align="center">200</td>
+</tr>
+<tr>
+<td align="center">content</td>
+<td align="center">byte</td>
+<td align="center">返回字节类型文本</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">headers</td>
+<td align="center">dict</td>
+<td align="center">请求头</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">raw</td>
+<td align="center">str</td>
+<td align="center">原始的返回包</td>
+<td align="center">&#x2F;</td>
+</tr>
+<tr>
+<td align="center">text</td>
+<td align="center">str</td>
+<td align="center">解码后的返回文本</td>
+<td align="center">&#x2F;</td>
+</tr>
+</tbody></table>
+<h3><span id="解析">解析</span></h3><h4><span id="selfgenerateitemdatas">self.generateItemdatas()</span></h4><p>generateItemdatas()会将参数名、参数值及其所处的可控点整理后返回<br>注意: 它会额外地解析出伪静态及xml等包含的参数，<br>并按照用户要求选择是否将cookie参数作为解析对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; iterdatas = <span class="variable language_">self</span>.generateItemdatas()</span><br><span class="line">&gt;&gt; <span class="built_in">print</span>(iterdatas)</span><br><span class="line">[</span><br><span class="line">    [<span class="string">&quot;id&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;URL&quot;</span>],</span><br><span class="line">    [<span class="string">&quot;username&quot;</span>, <span class="string">&quot;admin&quot;</span>, <span class="string">&quot;DATA&quot;</span>],</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h4><span id="selfinsertpayloadkey-k-value-v-position-position-payload-_payload">self.insertPayload({“key”: k, “value”: v, “position”: position, “payload”: _payload})</span></h4><p>令参数名为key，参数值为value（value为可选值），并向参数值后添加payload<br>最终返回其对应可控点修改后的数据<br>建议配合self.generateItemdatas()使用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; datas = <span class="variable language_">self</span>.insertPayload(&#123;<span class="string">&quot;key&quot;</span>: <span class="string">&quot;username&quot;</span>, <span class="string">&quot;value&quot;</span>: <span class="string">&quot;admin&quot;</span>, <span class="string">&quot;position&quot;</span>: <span class="string">&quot;DATA&quot;</span>, <span class="string">&quot;payload&quot;</span>: <span class="string">&quot;&#x27;--+&quot;</span>&#125;)</span><br><span class="line">&gt;&gt; <span class="built_in">print</span>(datas)</span><br><span class="line">&#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&#x27;--+&quot;</span>, <span class="string">&quot;passwd&quot;</span>: <span class="string">&quot;admin&quot;</span>&#125;;</span><br><span class="line">&gt;&gt; r = request.get(url, data=datas)</span><br></pre></td></tr></table></figure>
+
+<h4><span id="selfreqposition-payload">self.req(position, payload)</span></h4><p>payload为对应可控点修改后的整体数据，可以为self.insertPayload的返回<br>需配合self.generateItemdatas()使用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; datas = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&#x27;--+&quot;</span>, <span class="string">&quot;passwd&quot;</span>: <span class="string">&quot;admin&quot;</span>&#125;</span><br><span class="line">&gt;&gt; r = <span class="variable language_">self</span>.req(<span class="string">&quot;DATA&quot;</span>, datas)</span><br><span class="line">&gt;&gt; <span class="built_in">print</span>(r)</span><br><span class="line">… <span class="comment"># r为request的返回</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="返回">返回</span></h3><h4><span id="selfgenerate_result">self.generate_result()</span></h4><p>报告生成</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">result = <span class="variable language_">self</span>.generate_result() <span class="comment"># 初始化</span></span><br><span class="line">result.main(&#123;</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="type">Type</span>.REQUEST, <span class="comment"># 扫描类型</span></span><br><span class="line">    <span class="string">&quot;url&quot;</span>: <span class="variable language_">self</span>.requests.url, <span class="comment"># 漏洞URL</span></span><br><span class="line">    <span class="string">&quot;vultype&quot;</span>: VulType.SQLI, <span class="comment"># 漏洞类型</span></span><br><span class="line">    <span class="string">&quot;show&quot;</span>: &#123; <span class="comment"># 你希望向命令行展示的信息</span></span><br><span class="line">        <span class="string">&quot;Position&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;position&#125;</span> &gt; <span class="subst">&#123;k&#125;</span>&quot;</span>, <span class="comment"># 建议键名首字母大写</span></span><br><span class="line">        <span class="string">&quot;Payload&quot;</span>: payload, </span><br><span class="line">        <span class="string">&quot;Msg&quot;</span>: <span class="string">&quot;DBMS_TYPE Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group())</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"><span class="comment"># 验证步骤(可以添加多个过程，如二次验证)</span></span><br><span class="line">result.step(<span class="string">&quot;Request1&quot;</span>, &#123; <span class="comment"># 这是验证步骤的标题</span></span><br><span class="line">    <span class="string">&quot;request&quot;</span>: r.reqinfo, <span class="comment"># 验证步骤的请求体</span></span><br><span class="line">    <span class="string">&quot;response&quot;</span>: generateResponse(r), <span class="comment"># 验证步骤的响应体</span></span><br><span class="line">    <span class="string">&quot;desc&quot;</span>: <span class="string">&quot;Dbms Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group()) <span class="comment"># 验证步骤描述/结论/推断</span></span><br><span class="line">    &#125;)</span><br><span class="line"><span class="variable language_">self</span>.success(result) <span class="comment"># 生成</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="requests">requests</span></h2><p>在 z0scan 的 <code>lib/patch/request_patch.py</code> 中向 requests 库增添了新的可选项<br><code>quote</code>：是否进行URL编码（默认为True）<br><code>record</code>：是否记录本次请求状态到数据库（默认为True）</p>
+<h2><span id="编写示范">编写示范</span></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> api <span class="keyword">import</span> generateResponse, random_num, random_str, VulType, <span class="type">Type</span>, PluginBase, conf, logger, Thread</span><br><span class="line"><span class="keyword">from</span> helper.helper_sensitive <span class="keyword">import</span> sensitive_page_error_message_check</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">sqli_errors = &#123;</span><br><span class="line">    <span class="string">&quot;Microsoft SQL&quot;</span>: [</span><br><span class="line">    .... <span class="comment"># 省略</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Z0SCAN</span>(<span class="title class_ inherited__">PluginBase</span>):</span><br><span class="line">    name = <span class="string">&quot;sqli-error&quot;</span> <span class="comment"># 插件名</span></span><br><span class="line">    desc = <span class="string">&#x27;SQL Error Finder&#x27;</span> <span class="comment"># 描述</span></span><br><span class="line">    version = <span class="string">&quot;2025.3.13&quot;</span> <span class="comment"># 版本（最后更新日期）</span></span><br><span class="line">    risk = <span class="number">2</span> <span class="comment"># 危害等级</span></span><br><span class="line">    <span class="comment"># require_reverse = False # 是否需要启用反连平台验证（省略默认False）</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">audit</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.fingerprints.waf <span class="keyword">and</span> <span class="number">2</span> <span class="keyword">in</span> conf.risk <span class="keyword">and</span> conf.level != <span class="number">0</span>:</span><br><span class="line">            _payloads = [</span><br><span class="line">                <span class="comment">## 宽字节</span></span><br><span class="line">                <span class="string">r&#x27;鎈\&#x27;&quot;\(&#x27;</span>,</span><br><span class="line">                <span class="comment">## 通用报错</span></span><br><span class="line">                <span class="string">r&#x27;;)\\\&#x27;\&#x27;&#x27;</span>,</span><br><span class="line">                <span class="string">r&#x27;\&#x27; oRdeR bY 500 &#x27;</span>,</span><br><span class="line">                <span class="string">r&#x27;;`)&#x27;</span>,</span><br><span class="line">                <span class="string">r&#x27;\\&#x27;</span>, </span><br><span class="line">                <span class="string">r&quot;%%2727&quot;</span>, </span><br><span class="line">                <span class="string">r&quot;%25%27&quot;</span>, </span><br><span class="line">                <span class="string">r&quot;%60&quot;</span>, </span><br><span class="line">                <span class="string">r&quot;%5C&quot;</span>,</span><br><span class="line">            ]</span><br><span class="line">            <span class="keyword">if</span> conf.level == <span class="number">3</span>: </span><br><span class="line">                _payloads += [</span><br><span class="line">                <span class="comment">## 强制报错</span></span><br><span class="line">                <span class="comment"># MySQL</span></span><br><span class="line">                <span class="string">r&#x27;\&#x27; AND 0xG1#&#x27;</span>,</span><br><span class="line">                <span class="comment"># PostgreSQL  </span></span><br><span class="line">                <span class="string">r&quot;&#x27; AND &#x27;a&#x27; ~ &#x27;b[&#x27; -- &quot;</span>,</span><br><span class="line">                <span class="comment"># MSSQL</span></span><br><span class="line">                <span class="string">r&quot;; RAISERROR(&#x27;Error generated&#x27;, 16, 1) -- &quot;</span>, </span><br><span class="line">                <span class="comment"># Oracle</span></span><br><span class="line">                <span class="string">r&quot;&#x27; UNION SELECT XMLType(&#x27;&lt;invalid&gt;&lt;xml&gt;&#x27;) FROM dual -- &quot;</span>,  </span><br><span class="line">                <span class="comment"># SQLite</span></span><br><span class="line">                <span class="string">r&quot;&#x27; UNION SELECT SUBSTR(&#x27;o&#x27;, -1, 1) -- &quot;</span>,</span><br><span class="line">                ]</span><br><span class="line">    </span><br><span class="line">            iterdatas = <span class="variable language_">self</span>.generateItemdatas()</span><br><span class="line">            <span class="comment"># 内置的线程并发</span></span><br><span class="line">            z0thread = Threads(name=<span class="string">&quot;sqli-error&quot;</span>)</span><br><span class="line">            z0thread.submit(<span class="variable language_">self</span>.process, iterdatas, _payloads)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">Get_sql_errors</span>(<span class="params">self</span>):</span><br><span class="line">        sql_errors = []</span><br><span class="line">        <span class="keyword">for</span> database, re_strings <span class="keyword">in</span> rules.items():</span><br><span class="line">            <span class="keyword">for</span> re_string <span class="keyword">in</span> re_strings:</span><br><span class="line">                sql_errors.append((re.<span class="built_in">compile</span>(re_string, re.IGNORECASE), database))</span><br><span class="line">        <span class="keyword">return</span> sql_errors</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, _, _payloads</span>):</span><br><span class="line">        k, v, position = _</span><br><span class="line">        <span class="keyword">for</span> _payload <span class="keyword">in</span> _payloads:</span><br><span class="line">            payload = <span class="variable language_">self</span>.insertPayload(&#123;</span><br><span class="line">                <span class="string">&quot;key&quot;</span>: k, </span><br><span class="line">                <span class="string">&quot;value&quot;</span>: v, </span><br><span class="line">                <span class="string">&quot;position&quot;</span>: position, </span><br><span class="line">                <span class="string">&quot;payload&quot;</span>: _payload</span><br><span class="line">                &#125;)</span><br><span class="line">            r = <span class="variable language_">self</span>.req(position, payload)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> r:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            html = r.text</span><br><span class="line">            <span class="keyword">for</span> sql_regex, dbms_type <span class="keyword">in</span> <span class="variable language_">self</span>.Get_sql_errors():</span><br><span class="line">                <span class="keyword">match</span> = sql_regex.search(html)</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">match</span>:</span><br><span class="line">                    <span class="comment"># 生成报告</span></span><br><span class="line">                    result = <span class="variable language_">self</span>.generate_result()</span><br><span class="line">                    result.main(&#123;</span><br><span class="line">                        <span class="string">&quot;type&quot;</span>: <span class="type">Type</span>.REQUEST, <span class="comment"># 扫描类型</span></span><br><span class="line">                        <span class="string">&quot;url&quot;</span>: <span class="variable language_">self</span>.requests.url, <span class="comment"># 漏洞URL</span></span><br><span class="line">                        <span class="string">&quot;vultype&quot;</span>: VulType.SQLI, <span class="comment"># 漏洞类型</span></span><br><span class="line">                        <span class="string">&quot;show&quot;</span>: &#123; <span class="comment"># 你希望向命令行展示的信息</span></span><br><span class="line">                            <span class="string">&quot;Position&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;position&#125;</span> &gt; <span class="subst">&#123;k&#125;</span>&quot;</span>, <span class="comment"># 建议键名首字母大写</span></span><br><span class="line">                            <span class="string">&quot;Payload&quot;</span>: payload, </span><br><span class="line">                            <span class="string">&quot;Msg&quot;</span>: <span class="string">&quot;DBMS_TYPE Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group())</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;)</span><br><span class="line">                    <span class="comment"># 验证步骤(可以添加多个过程，如二次验证)</span></span><br><span class="line">                    result.step(<span class="string">&quot;Request1&quot;</span>, &#123;</span><br><span class="line">                        <span class="string">&quot;request&quot;</span>: r.reqinfo, </span><br><span class="line">                        <span class="string">&quot;response&quot;</span>: generateResponse(r), </span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="string">&quot;Dbms Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group())</span><br><span class="line">                        &#125;)</span><br><span class="line">                    <span class="variable language_">self</span>.success(result)</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            message_lists = sensitive_page_error_message_check(html)</span><br><span class="line">            <span class="keyword">if</span> message_lists:</span><br><span class="line">                result = <span class="variable language_">self</span>.generate_result()</span><br><span class="line">                result.main(&#123;</span><br><span class="line">                    <span class="string">&quot;type&quot;</span>: <span class="type">Type</span>.REQUEST, </span><br><span class="line">                    <span class="string">&quot;url&quot;</span>: <span class="variable language_">self</span>.requests.url, </span><br><span class="line">                    <span class="string">&quot;vultype&quot;</span>: VulType.SQLI, </span><br><span class="line">                    <span class="string">&quot;show&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;Position&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;position&#125;</span> &gt; <span class="subst">&#123;k&#125;</span>&quot;</span>, </span><br><span class="line">                        <span class="string">&quot;Payload&quot;</span>: payload, </span><br><span class="line">                        <span class="string">&quot;Msg&quot;</span>: <span class="string">&quot;Receive Error Msg &#123;&#125;&quot;</span>.<span class="built_in">format</span>(<span class="built_in">repr</span>(message_lists))</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;)</span><br><span class="line">                result.step(<span class="string">&quot;Request1&quot;</span>, &#123; <span class="comment"># 步骤标题</span></span><br><span class="line">                    <span class="string">&quot;request&quot;</span>: r.reqinfo, <span class="comment"># 请求体</span></span><br><span class="line">                    <span class="string">&quot;response&quot;</span>: generateResponse(r), <span class="comment"># 响应体(由generateResponse生成)</span></span><br><span class="line">                    <span class="string">&quot;desc&quot;</span>: <span class="string">&quot;Receive Error Msg &#123;&#125;&quot;</span>.<span class="built_in">format</span>(<span class="built_in">repr</span>(message_lists)) <span class="comment"># 步骤的关键信息</span></span><br><span class="line">                    &#125;)</span><br><span class="line">                <span class="variable language_">self</span>.success(result)</span><br><span class="line">                <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="继承_pluginbase">继承_PluginBase</span></h2><blockquote>
+<p>用于编写 PerHost</p>
+</blockquote>
+<h3><span id="数据">数据</span></h3><h4><span id="selfhost">self.host</span></h4><p>它的值类似于：<code>5.9.2.0:1314</code><br>你可以通过split它以取得ip与端口：<code>self.ip, self.port = self.host.split(&quot;:&quot;)</code></p>
+<h4><span id="selfsockrecv">self.sockrecv</span></h4><p>由socket对端口请求后接收的返回<br>关键代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response = sock.recv(<span class="number">256</span>).decode(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;ignore&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="返回">返回</span></h3><h4><span id="selfgenerate_result">self.generate_result()</span></h4><p>报告生成</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">result = <span class="variable language_">self</span>.generate_result() <span class="comment"># 初始化</span></span><br><span class="line">result.main(&#123;</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="type">Type</span>.REQUEST, <span class="comment"># 扫描类型</span></span><br><span class="line">    <span class="string">&quot;url&quot;</span>: <span class="variable language_">self</span>.requests.url, <span class="comment"># 漏洞URL</span></span><br><span class="line">    <span class="string">&quot;vultype&quot;</span>: VulType.SQLI, <span class="comment"># 漏洞类型</span></span><br><span class="line">    <span class="string">&quot;show&quot;</span>: &#123; <span class="comment"># 你希望向命令行展示的信息</span></span><br><span class="line">        <span class="string">&quot;Position&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;position&#125;</span> &gt; <span class="subst">&#123;k&#125;</span>&quot;</span>, <span class="comment"># 建议键名首字母大写</span></span><br><span class="line">        <span class="string">&quot;Payload&quot;</span>: payload, </span><br><span class="line">        <span class="string">&quot;Msg&quot;</span>: <span class="string">&quot;DBMS_TYPE Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group())</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"><span class="comment"># 验证步骤(可以添加多个过程，如二次验证)</span></span><br><span class="line">result.step(<span class="string">&quot;Request1&quot;</span>, &#123; <span class="comment"># 这是验证步骤的标题</span></span><br><span class="line">    <span class="string">&quot;request&quot;</span>: r.reqinfo, <span class="comment"># 验证步骤的请求体</span></span><br><span class="line">    <span class="string">&quot;response&quot;</span>: generateResponse(r), <span class="comment"># 验证步骤的响应体</span></span><br><span class="line">    <span class="string">&quot;desc&quot;</span>: <span class="string">&quot;Dbms Maybe &#123;&#125;; Match &#123;&#125;&quot;</span>.<span class="built_in">format</span>(dbms_type, <span class="keyword">match</span>.group()) <span class="comment"># 验证步骤描述/结论/推断</span></span><br><span class="line">    &#125;)</span><br><span class="line"><span class="variable language_">self</span>.success(result) <span class="comment"># 生成</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="编写示范">编写示范</span></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># JiuZero 2025/9/12</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket, binascii</span><br><span class="line"><span class="keyword">from</span> api <span class="keyword">import</span> generateResponse, random_num, conf, PLACE, VulType, POST_HINT, <span class="type">Type</span>, _PluginBase, KB, Threads</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Z0SCAN</span>(<span class="title class_ inherited__">_PluginBase</span>):</span><br><span class="line">    name = <span class="string">&quot;leakpwd-mssql&quot;</span> <span class="comment"># 插件名</span></span><br><span class="line">    version = <span class="string">&quot;2025.9.12&quot;</span> <span class="comment"># 版本</span></span><br><span class="line">    desc = <span class="string">&quot;Weak Password on MSSQL Server&quot;</span> <span class="comment"># 描述</span></span><br><span class="line">    ports = [<span class="number">1433</span>] <span class="comment"># 目标端口（可以多个）</span></span><br><span class="line">    fingers = [<span class="string">b&#x27;MSSQLSERVER&#x27;</span>] <span class="comment"># 目标服务的指纹（可以多个）</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.right_pwd = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">audit</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.ip, <span class="variable language_">self</span>.port = <span class="variable language_">self</span>.host.split(<span class="string">&quot;:&quot;</span>)</span><br><span class="line">        userpass = []</span><br><span class="line">        <span class="keyword">for</span> user <span class="keyword">in</span> conf.lists[<span class="string">&quot;mssql-username&quot;</span>]:</span><br><span class="line">            <span class="keyword">for</span> pwd <span class="keyword">in</span> conf.lists[<span class="string">&quot;mssql-password&quot;</span>]:</span><br><span class="line">                userpass.append((user, pwd))</span><br><span class="line">        z0thread = Threads(name=<span class="string">&quot;leakpwd-redis&quot;</span>)</span><br><span class="line">        z0thread.submit(<span class="variable language_">self</span>.process, userpass)</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.right_pwd <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            result = <span class="variable language_">self</span>.generate_result()</span><br><span class="line">            result.main(&#123;</span><br><span class="line">                <span class="string">&quot;type&quot;</span>: <span class="type">Type</span>.REQUEST, </span><br><span class="line">                <span class="string">&quot;url&quot;</span>: <span class="string">&quot;tcp://&quot;</span> + <span class="variable language_">self</span>.host, </span><br><span class="line">                <span class="string">&quot;vultype&quot;</span>: VulType.WEAK_PASSWORD, </span><br><span class="line">                <span class="string">&quot;show&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;User/Password&quot;</span>: <span class="string">&quot;/&quot;</span>.join(<span class="variable language_">self</span>.right_pwd)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="variable language_">self</span>.success(result)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, userpwd</span>):</span><br><span class="line">        user, pass_ = userpwd</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.right_pwd <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                sock.settimeout(<span class="number">8</span>)</span><br><span class="line">                sock.connect((<span class="variable language_">self</span>.ip, <span class="variable language_">self</span>.port))</span><br><span class="line">                hh = binascii.b2a_hex(<span class="variable language_">self</span>.ip.encode()).decode()</span><br><span class="line">                husername = binascii.b2a_hex(user.encode()).decode()</span><br><span class="line">                lusername = <span class="built_in">len</span>(user)</span><br><span class="line">                lpassword = <span class="built_in">len</span>(pass_)</span><br><span class="line">                ladd = <span class="built_in">len</span>(<span class="variable language_">self</span>.ip) + <span class="built_in">len</span>(<span class="built_in">str</span>(<span class="variable language_">self</span>.port)) + <span class="number">1</span></span><br><span class="line">                hpwd = binascii.b2a_hex(pass_.encode()).decode()</span><br><span class="line">                pp = binascii.b2a_hex(<span class="built_in">str</span>(<span class="variable language_">self</span>.port).encode()).decode()</span><br><span class="line">                address = hh + <span class="string">&#x27;3a&#x27;</span> + pp</span><br><span class="line">                <span class="comment"># hhost = binascii.b2a_hex(ip.encode()).decode()</span></span><br><span class="line">                data = <span class="string">&quot;0200020000000000123456789000000000000000000000000000000000000000000000000000ZZ5440000000000000000000000000000000000000000000000000000000000X3360000000000000000000000000000000000000000000000000000000000Y373933340000000000000000000000000000000000000000000000000000040301060a09010000000002000000000070796d7373716c000000000000000000000000000000000000000000000007123456789000000000000000000000000000000000000000000000000000ZZ33600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000Y0402000044422d4c6962726172790a00000000000d1175735f656e676c69736800000000000000000000000000000201004c000000000000000000000a000000000000000000000000000069736f5f31000000000000000000000000000000000000000000000000000501353132000000030000000000000000&quot;</span></span><br><span class="line">                data1 = data.replace(data[<span class="number">16</span>:<span class="number">16</span> + <span class="built_in">len</span>(address)], address)</span><br><span class="line">                data2 = data1.replace(data1[<span class="number">78</span>:<span class="number">78</span> + <span class="built_in">len</span>(husername)], husername)</span><br><span class="line">                data3 = data2.replace(data2[<span class="number">140</span>:<span class="number">140</span> + <span class="built_in">len</span>(hpwd)], hpwd)</span><br><span class="line">                <span class="keyword">if</span> lusername &gt;= <span class="number">16</span>:</span><br><span class="line">                    data4 = data3.replace(<span class="string">&#x27;0X&#x27;</span>, <span class="built_in">str</span>(<span class="built_in">hex</span>(lusername)).replace(<span class="string">&#x27;0x&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    data4 = data3.replace(<span class="string">&#x27;X&#x27;</span>, <span class="built_in">str</span>(<span class="built_in">hex</span>(lusername)).replace(<span class="string">&#x27;0x&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">                <span class="keyword">if</span> lpassword &gt;= <span class="number">16</span>:</span><br><span class="line">                    data5 = data4.replace(<span class="string">&#x27;0Y&#x27;</span>, <span class="built_in">str</span>(<span class="built_in">hex</span>(lpassword)).replace(<span class="string">&#x27;0x&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    data5 = data4.replace(<span class="string">&#x27;Y&#x27;</span>, <span class="built_in">str</span>(<span class="built_in">hex</span>(lpassword)).replace(<span class="string">&#x27;0x&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">                hladd = <span class="built_in">hex</span>(ladd).replace(<span class="string">&#x27;0x&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">                data6 = data5.replace(<span class="string">&#x27;ZZ&#x27;</span>, <span class="built_in">str</span>(hladd))</span><br><span class="line">                data7 = binascii.unhexlify(data6)</span><br><span class="line">                sock.send(data7)</span><br><span class="line">                packet = sock.recv(<span class="number">1024</span>)</span><br><span class="line">                <span class="keyword">if</span> <span class="string">b&#x27;master&#x27;</span> <span class="keyword">in</span> packet:</span><br><span class="line">                    <span class="variable language_">self</span>.right_pwd = userpwd</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">            <span class="keyword">finally</span>:</span><br><span class="line">                sock.close()</span><br></pre></td></tr></table></figure>
+
+<h2><span id="使用ai编写">使用AI编写</span></h2><p>Z0Scan 虽不能像 afrog与nuclei 那般能够快速借助静态平台快速生成Scanner，<br>但得益于AI 对Python的掌握，<br>您可以通过引用本文并提供需求描述以生成高可用性插件。</p>
+<p>插件开发需求描述示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">阅读以下关于 Z0Scan 插件的编写说明，</span><br><span class="line"># 这里复制文本/引用链接（仅对部分AI有效）</span><br><span class="line">请你为我编写满足以下要求的针对XXX漏洞检测的Scanner插件：</span><br><span class="line">1. 需求1</span><br><span class="line">2. 需求2</span><br></pre></td></tr></table></figure>
+
+<h2><span id="扫描器集成">扫描器集成</span></h2><p>Z0Scan 是开源的，我也希望各位大师傅们能够将 Z0Scan 集成到自己的扫描器中<br>在<code>api/__init__.py</code>中给出了外部调用方案：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">scan</span>(<span class="params">url, module_name, conf=&#123;&#125;, headers=&#123;&#125;</span>):</span><br><span class="line">    root = modulePath()</span><br><span class="line">    cmdline = &#123;</span><br><span class="line">        <span class="string">&quot;level&quot;</span>: <span class="number">3</span></span><br><span class="line">    &#125;</span><br><span class="line">    cmdline.update(conf)</span><br><span class="line">    init(root, cmdline)</span><br><span class="line">    r = requests.get(url, headers=headers)</span><br><span class="line">    req = FakeReq(url, headers, HTTPMETHOD.GET)</span><br><span class="line">    resp = FakeResp(r.status_code, r.content, r.headers)</span><br><span class="line">    poc_module = copy.deepcopy(KB[<span class="string">&quot;registered&quot;</span>][module_name])</span><br><span class="line">    poc_module.execute(req, resp)</span><br></pre></td></tr></table></figure>
+    </div>
+    <footer class="article-footer">
+      
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/z0scan/" rel="tag" title="z0scan">z0scan</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/%E5%85%B6%E4%BB%96/" rel="tag" title="其他">其他</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="https://img.8845.top/img2/1942944226892972282.jpg" data-sizes="auto" alt="Z0Scan设计与实现：通用插件与分布式扫描新思路" class="lazyload">
+        <a href="/en/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/" aria-label="Prev: Z0Scan设计与实现：通用插件与分布式扫描新思路" title="Prev: Z0Scan设计与实现：通用插件与分布式扫描新思路"></a>
+        <div class="article-nav-caption">Prev</div>
+        <h3 class="article-nav-title">
+            Z0Scan设计与实现：通用插件与分布式扫描新思路
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://img.8845.top/img2/133074326_p0.jpg" data-sizes="auto" alt="SQL注入绕过笔记" class="lazyload">
+      <a href="/en/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/" aria-label="Next: SQL注入绕过笔记"  title="Next: SQL注入绕过笔记"></a>
+      <div class="article-nav-caption">Next</div>
+      <h3 class="article-nav-title">
+          SQL注入绕过笔记
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        Powered by&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        10.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        00:50
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">前言说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">fingers.db 指纹开发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">Scanner 命名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">内置模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">api</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">api&#x2F;VulType</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">api&#x2F;Type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.3.</span> <span class="toc-text">api&#x2F;conf.level</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.4.</span> <span class="toc-text">api&#x2F;conf.risk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.5.</span> <span class="toc-text">api&#x2F;conf.dicts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.6.</span> <span class="toc-text">api&#x2F;PLACE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.7.</span> <span class="toc-text">api&#x2F;Threads</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.8.</span> <span class="toc-text">api&#x2F;chat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">继承PluginBase</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.1.</span> <span class="toc-text">self.fingerprints</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.2.</span> <span class="toc-text">self.requests</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.1.3.</span> <span class="toc-text">self.response</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.1.</span> <span class="toc-text">self.generateItemdatas()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.2.</span> <span class="toc-text">self.insertPayload({“key”: k, “value”: v, “position”: position, “payload”: _payload})</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.2.3.</span> <span class="toc-text">self.req(position, payload)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.3.</span> <span class="toc-text">返回</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">6.3.1.</span> <span class="toc-text">self.generate_result()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">requests</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">编写示范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">继承_PluginBase</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">9.1.</span> <span class="toc-text">数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.1.1.</span> <span class="toc-text">self.host</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.1.2.</span> <span class="toc-text">self.sockrecv</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">9.2.</span> <span class="toc-text">返回</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">9.2.1.</span> <span class="toc-text">self.generate_result()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">编写示范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">使用AI编写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">12.</span> <span class="toc-text">扫描器集成</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+  
+<script src="https://npm.webcache.cn/material-theme@1.0.0/dist/material-theme.umd.js" integrity="sha384-vLev0II0HKFaxkcm+&#x2F;7kX5IGwVFBASkGchU311wmU&#x2F;veIj2bB0UcBkQbW6yw2asK" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "Z0Scan - 开发指南",
+          url: "https://jiuzero.github.io/2025/11/09/z0scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/",
+          excerpt: " 愿你星河常明 ",
+          description: "",
+          stripContent: " 愿你星河常明       前言说明 fingers.db 指纹开发 Scanner 命名 内置模块 api api&amp;#x2F;VulType api&amp;#x2F;Type api&amp;#x2F;conf.level api&amp;#x2F;conf.risk api&amp;#x2F;conf.dicts api&amp;#x2F;PLACE api&amp;#x2F;Threads api&amp;#x2F;chat   继承PluginBase 数据 解析 返回   requests 编写示范 继承_PluginBase 数据 返回",
+          date: "Sun Nov 09 2025 00:00:00 GMT+0800",
+          updated: "Sat Jul 04 2026 00:24:52 GMT+0800",
+          cover: "https://img.8845.top/img2/126185064.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>

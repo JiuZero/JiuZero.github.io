@@ -1,0 +1,732 @@
+  <!DOCTYPE html>
+  <html lang="en"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    Z0Scan设计与实现：通用插件与分布式扫描新思路 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="解铃还须系铃人">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Z0Scan设计与实现：通用插件与分布式扫描新思路">
+<meta property="og:url" content="https://jiuzero.github.io/en/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="解铃还须系铃人">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/1.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/2.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/3.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/4.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/5.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/6.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/7.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/8.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/9.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/10.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/11.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/12.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/13.png">
+<meta property="og:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/14.png">
+<meta property="article:published_time" content="2025-11-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T16:25:13.768Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="z0scan">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/1.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">Loading...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/en/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">Home</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">Archives</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">About</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/en/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">Friend</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed" aria-label="RSS Feed" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="Search" aria-label="Search"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">English</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" aria-selected="false">简体中文</li>
+            <li data-value="en" role="option" class="selected" aria-selected="true">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2025/11/28/Z0Scan设计与实现：通用插件与分布式扫描新思路/';
+              langMap['en'] = '/en/2025/11/28/Z0Scan设计与实现：通用插件与分布式扫描新思路/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img crossorigin="anonymous" fetchpriority="high" src="https://img.8845.top/img2/1942944226892972282.jpg" alt="Z0Scan设计与实现：通用插件与分布式扫描新思路">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">Z0Scan设计与实现：通用插件与分布式扫描新思路</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-Z0Scan设计与实现：通用插件与分布式扫描新思路" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2025-11-27T16:00:00.000Z" itemprop="datePublished">2025-11-28</time>
+    <time style="display: none;" id="post-update-time">2026-07-04</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-07-03T16:25:13.768Z" itemprop="dateModified">2026-07-04</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <blockquote>
+<p>解铃还须系铃人</p>
+</blockquote>
+<span id="more"></span>
+
+<p>各位前辈老师好，我是九泠，目前是某三线城市的一名普通高中生，也是 <strong>Z0Scan</strong> 项目的发起人与核心开发者。</p>
+<p>我希望借这次机会，向各位前辈们系统地介绍下 <strong>Z0Scan</strong>。</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/1.png" class width="1">
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">项目地址</span><br><span class="line">GitHub - https://github.com/JiuZero/z0scan</span><br><span class="line">Gitee - https://gitee.com/JiuZero/z0scan</span><br></pre></td></tr></table></figure>
+
+<p>Z0Scan 的萌芽始于我初三时期，当时深受 w13scan 与 xray 的启发，逐渐萌生了一个想法：<br>打造一款不依赖臃肿 POC、专注于大通用型漏洞探测的扫描器。</p>
+<p>她不仅具备高度通用的漏洞插件架构，更致力于探查那些被忽视的、冷门却广泛存在的安全风险，探索Web黑盒的更多可能。</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/2.png" class width="2">
+
+<p>在设计理念上，Z0Scan 将 <strong>WAF 嗅探融入指纹识别环节</strong>，并基于 WAF 存在与否智能调度插件与 Payload，从而以更少的请求、更低的拦截率完成检测。</p>
+<p>但 Z0Scan 的调度逻辑不止于此——服务类型、中间件等指纹信息同样可作为调度依据，正如 EZScanner 中的“HTTP Request Reduce”技术所倡导的那样：</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/3.png" class width="3">
+
+<p>随着不断迭代，Z0Scan 逐步发展出多项核心特性：</p>
+<ol>
+<li><strong>本地与分布式一体化架构</strong><br>支持本地与基于 <strong>Redis 的分布式部署</strong>，融合了主被动扫描能力，并彻底摆脱对 BurpSuite 的依赖，延续了 myscan 在分布式方面的设计思路。</li>
+</ol>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/4.png" class width="4">
+
+<ol start="2">
+<li><p><strong>AI 辅助的 JS 敏感信息校验</strong><br>为避免传统正则匹配的误报，Z0Scan 引入 AI 对初步匹配结果进行<strong>二次校验</strong>，提升准确性与可信度。</p>
+</li>
+<li><p><strong>原生 IPv6 支持</strong><br>从 myscan 中汲取灵感，Z0Scan 实现了对 IPv6 环境的完整兼容，拓展了适用场景以达到<strong>绕过部分防火墙</strong>的目的。</p>
+</li>
+</ol>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/5.png" class width="5">
+
+<ol start="4">
+<li><strong>伪静态参数智能提取</strong><br>针对 EZScanner、Xray 等工具尚未完善的伪静态路径解析能力，Z0Scan 进行了初步实现，覆盖多种<strong>伪静态</strong>结构。</li>
+</ol>
+<p>得益于 <strong>WAF 指纹信息对插件的干涉</strong>，sqli-bool 采用了<strong>更保守、更少的Payload</strong>完成了检测：</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/6.png" class width="6">
+
+<ol start="5">
+<li><strong>Web 控制台：流量队列与插件热管理</strong><br>提供流量队列机制，避免被动扫描时抢占关键请求；同时支持在扫描过程中动态启停插件，灵活适配不同测试场景，提升控制精度。</li>
+</ol>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/7.png" class width="7">
+
+<ol start="6">
+<li><strong>插件外部动态导入</strong><br>借助 Python 的灵活性与 <strong>Nuitka 编译优化</strong>，Z0Scan 支持<strong>插件热加载</strong>，兼顾开发效率与运行性能。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">├─config</span><br><span class="line">│  ├─lists</span><br><span class="line">│  └─others</span><br><span class="line">├─data</span><br><span class="line">├─fingerprints</span><br><span class="line">│  ├─os</span><br><span class="line">│  ├─programing</span><br><span class="line">│  └─webserver</span><br><span class="line">└─scanners</span><br><span class="line">    ├─PerDir</span><br><span class="line">    ├─PerDomain</span><br><span class="line">    ├─PerHost</span><br><span class="line">    └─PerPage</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><strong>被动指纹支持</strong><br>CMS百家争鸣，0day、1day层出不穷，当 afrog、nuclei 项目并不能够满足红队工作者的历史漏洞全面性要求时，其它更具针对性而全面的漏洞扫描体将成为红队工作者的更佳选择。</li>
+</ol>
+<p>而 afrog与 nuicle 的社区活跃度本已不是 z0scan 所能追及的，那么则应在两者间寻求平衡点——通过融合被动指纹识别与被动扫描能力，将指纹匹配与历史漏洞检索的完整性问题交由用户判断，同时赋予用户自主选择漏洞检测策略的权利。</p>
+<p>Z0Scan 目前支持<strong>近6000种CMS指纹</strong>识别，并向插件开放指纹检索，为针对特定CMS的0day漏洞检测插件（POC）开发提供了灵活、可扩展的实现方案。</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/8.png" class width="8">
+
+<ol start="8">
+<li><strong>主机端口漏洞探查</strong><br>赓续 myscan 的开发思想，Z0Scan 支持了针对每一主机（基于HOST IP去重）的<strong>端口探测与漏洞探查</strong>，并借助<strong>动态导入</strong>优势减少不必要的端口开放检测。</li>
+</ol>
+<p>此外，Z0Scan 还具备些小的创新优化：<br>如对SQL注入存在概率的判断算法，它来自于 DetSQL</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/9.png" class width="9">
+
+<p>这里使用的是EZ - 1.9.0，但在后续 EZ 的更新中有提及对SQL盲注的优化（不清楚还会不会误报，属实没积分了&#x2F;泪水）</p>
+<p>Z0Scan 最终的被动工作流程如下：</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/10.png" class width="10">
+
+<p>当然，命令行操作并非对所有人都友好。因此，我同步开发了 <strong>Ling</strong>。</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/11.png" class width="11">
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">项目地址</span><br><span class="line">GitHub - https://github.com/JiuZero/Ling</span><br><span class="line">Gitee - https://gitee.com/JiuZero/Ling</span><br></pre></td></tr></table></figure>
+
+<p>一个为 Z0Scan 量身打造的可视化操作界面。她将 Z0Scan 的各项能力以更直观、更美观的方式呈现，助力安全研究者轻松上手，高效“食用”Z0。</p>
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/12.png" class width="12">
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/13.png" class width="13">
+<img src="/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/14.png" class width="14">
+
+<p>在 Z0Scan 的成长路上汲取了一些开源项目的养分，它们包括但不限于：<em>W13Scan、GourdScanV2、myscan、Sitadel</em>..<br>插件开发离不开它们：<em>tplmap、webcrack、SQLmap</em>..</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">相关信息</span><br><span class="line">文档：https://jiuzero.github.io/tags/z0scan</span><br><span class="line">发行页：https://github.com/JiuZero/z0scan/releases</span><br><span class="line">更新日志：https://github.com/JiuZero/z0scan/blob/master/doc/CHANGELOG.MD</span><br></pre></td></tr></table></figure>
+
+<p>同时 Z0Scan 的开发也离不开各位大师傅们的支持与肯定，诚向各位网安工作者们表达最深的敬意。</p>
+
+    </div>
+    <footer class="article-footer">
+      
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/z0scan/" rel="tag" title="z0scan">z0scan</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/en/tags/%E5%85%B6%E4%BB%96/" rel="tag" title="其他">其他</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="https://img.8845.top/img2/4.jpg" data-sizes="auto" alt="Z0扫描器架构解析：从指纹到二级参数解析的实践" class="lazyload">
+        <a href="/en/2025/11/28/Z0%E6%89%AB%E6%8F%8F%E5%99%A8%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%8C%87%E7%BA%B9%E5%88%B0%E4%BA%8C%E7%BA%A7%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E7%9A%84%E5%AE%9E%E8%B7%B5/" aria-label="Prev: Z0扫描器架构解析：从指纹到二级参数解析的实践" title="Prev: Z0扫描器架构解析：从指纹到二级参数解析的实践"></a>
+        <div class="article-nav-caption">Prev</div>
+        <h3 class="article-nav-title">
+            Z0扫描器架构解析：从指纹到二级参数解析的实践
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://img.8845.top/img2/126185064.jpg" data-sizes="auto" alt="Z0Scan - 开发指南" class="lazyload">
+      <a href="/en/2025/11/09/z0scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" aria-label="Next: Z0Scan - 开发指南"  title="Next: Z0Scan - 开发指南"></a>
+      <div class="article-nav-caption">Next</div>
+      <h3 class="article-nav-title">
+          Z0Scan - 开发指南
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        Powered by&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        10.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        00:50
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">Contents</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>Post</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>Category</div>
+    <div class="sidebar-state-number">0</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>Tag</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/" aria-label="Home"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">Home</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/archives" aria-label="Archives"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">Archives</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/about" aria-label="About"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">About</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/en/friend" aria-label="Friend"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">Friend</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+  
+<script src="https://npm.webcache.cn/material-theme@1.0.0/dist/material-theme.umd.js" integrity="sha384-vLev0II0HKFaxkcm+&#x2F;7kX5IGwVFBASkGchU311wmU&#x2F;veIj2bB0UcBkQbW6yw2asK" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "Z0Scan设计与实现：通用插件与分布式扫描新思路",
+          url: "https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/",
+          excerpt: " 解铃还须系铃人 ",
+          description: "",
+          stripContent: " 解铃还须系铃人    各位前辈老师好，我是九泠，目前是某三线城市的一名普通高中生，也是 Z0Scan 项目的发起人与核心开发者。 我希望借这次机会，向各位前辈们系统地介绍下 Z0Scan。  123项目地址GitHub - https://github.com/JiuZero/z0scanGitee - https://gitee.com/JiuZero/z0scan  Z0Scan 的萌芽始于我初三时期，当时深受 w13scan 与 xray 的启发，逐渐萌生了一个想法：打造一款不依赖臃肿 ",
+          date: "Fri Nov 28 2025 00:00:00 GMT+0800",
+          updated: "Sat Jul 04 2026 00:25:13 GMT+0800",
+          cover: "https://img.8845.top/img2/1942944226892972282.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>
