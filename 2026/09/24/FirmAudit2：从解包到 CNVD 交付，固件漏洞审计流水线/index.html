@@ -1,0 +1,1051 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="一、项目出发背景做固件审计的师傅大概都被这几件事磨过：  工具不缺，binwalk、FirmAE、radare2、QEMU 都在，可它们之间那段路全靠人肉走； 让大模型去跑命令，我心里发虚——它一句 apt install 就能把我环境搞乱； 它说”这里有个命令注入”，自己复现利用失败，转头追问AI，AI：是我的错误…； 真挖到了洞，后面还得手抄复现步骤、整理证据、套 CNVD 模板，一晚上又没">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线">
+<meta property="og:url" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="一、项目出发背景做固件审计的师傅大概都被这几件事磨过：  工具不缺，binwalk、FirmAE、radare2、QEMU 都在，可它们之间那段路全靠人肉走； 让大模型去跑命令，我心里发虚——它一句 apt install 就能把我环境搞乱； 它说”这里有个命令注入”，自己复现利用失败，转头追问AI，AI：是我的错误…； 真挖到了洞，后面还得手抄复现步骤、整理证据、套 CNVD 模板，一晚上又没">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img0.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img1.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img2.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img3.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img4.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img5.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img6.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img7.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img8.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img9.png">
+<meta property="article:published_time" content="2026-09-24T08:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-24T08:41:57.812Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="固件审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img0.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      
+<link rel="stylesheet" href="https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.css" integrity="sha384-X7z7PUv2B67D8sPJyzDyGZSco1ADwmdI7ed4eCGtTKkClfyDFpPL9WgAn9XVr&#x2F;Io" crossorigin="anonymous">
+
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">加载中...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" aria-label="RSS 订阅" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">简体中文</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" class="selected" aria-selected="true">简体中文</li>
+            <li data-value="en" role="option" aria-selected="false">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2026/09/24/FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线/';
+              langMap['en'] = '/en/2026/09/24/FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="https://img.8845.top/img2/%E3%80%8ARe%EF%BC%9A%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%BC%82%E4%B8%96%E7%95%8C%E7%94%9F%E6%B4%BB%E3%80%8B%E7%88%B1%E8%9C%9C%E8%8E%89%E9%9B%85%E5%8A%A8%28.png" alt="FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一、项目出发背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">二、系统总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">能力概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">工作流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">三、过程约束：分段引导与校验回环</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">为什么要有它</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">打回是下一句提示词的开头</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.3.</span> <span class="toc-text">一次只推进一个漏洞，投递还要对账</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.4.</span> <span class="toc-text">效果对比（由AI对本地任务数据的情况统计）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">四、结果门之一：收口门——状态判定的前置条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">五、结果门之二：本地仿真验证硬门——证据只认运行时输出</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">动机来自一份看起来很好的资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">六、结果门之三：资产证明门——版本信息必须在头两步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">七、结果门之四：报告复核门，以及对”事后回改”的重开</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">7.1.</span> <span class="toc-text">过了门也不是一劳永逸</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">八、运行时约束：给”一次工具调用”上计时器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">九、环境约束：会话级 overlay 临时根</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">十、把约束写进提示词，再用回归测试锁住</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">十一、交付形态：自包含平铺总包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">12.</span> <span class="toc-text">十二、现有产出展示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">13.</span> <span class="toc-text">十三、购买入口（白帽集市）</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">14</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">9</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-09-24T08:30:00.000Z" itemprop="datePublished">2026-09-24</time>
+    <time style="display: none;" id="post-update-time">2026-09-24</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-09-24T08:41:57.812Z" itemprop="dateModified">2026-09-24</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <hr>
+<h2><span id="一-项目出发背景">一、项目出发背景</span></h2><p>做固件审计的师傅大概都被这几件事磨过：</p>
+<ul>
+<li>工具不缺，binwalk、FirmAE、radare2、QEMU 都在，可它们之间那段路全靠人肉走；</li>
+<li>让大模型去跑命令，我心里发虚——它一句 <code>apt install</code> 就能把我环境搞乱；</li>
+<li>它说”这里有个命令注入”，自己复现利用失败，转头追问AI，AI：是我的错误…；</li>
+<li>真挖到了洞，后面还得手抄复现步骤、整理证据、套 CNVD 模板，一晚上又没了。</li>
+</ul>
+<p>所以有了 FirmAudit2：<strong>让Agent去查，同时把”结论可信”这件事本身变成一个工程问题——过程可回放、字段可校验、产物可核对。</strong></p>
+<p>三层约束设计：</p>
+<p><strong>1. 过程约束</strong>：漏洞资料按段落逐段引导填充，每段过校验（第三节）；</p>
+<p><strong>2. 结果约束</strong>：任务收口和交付前各设门，共四道（第四到第七节）；</p>
+<p><strong>3. 运行时约束</strong>：会话级隔离 + 单次工具调用级活性看护（第八、九节）。</p>
+<p>实践数据与项目代码信息由AI负责整理，内容较多且考虑到截图时敏感信息的处理（其实是我懒得打码），数据统一从log&#x2F;database中提取并使用文本格式展示，建议略读¯꒳¯</p>
+<p>后文项目能力展示以 Tenda AC15升级软件 V15.03.05.18（2017.05.16）为例，所有漏洞均已在CNVD、CVE平台公开；AI模型为自己中转的 Opus4.6</p>
+<hr>
+<h2><span id="二-系统总览">二、系统总览</span></h2><p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img0.png"></p>
+<h3><span id="能力概览">能力概览</span></h3><p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img1.png"></p>
+<h3><span id="工作流程图">工作流程图</span></h3><p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img2.png"></p>
+<p>交付门由四条判据串成，顺序固定：本地仿真验证 → 八段齐备 → 报告复核（含漂移复查）。代码在 <code>internal/agent/findings_service.go</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DeliveryGaps 按八段式段落表回查漏洞资料缺口（节选）</span></span><br><span class="line"><span class="keyword">var</span> gaps []<span class="type">string</span></span><br><span class="line"><span class="comment">// 仿真验证门：静态看出危险调用不算验证，必须实际起过目标并留下回显。</span></span><br><span class="line"><span class="keyword">if</span> err := validateEmulationVerification(workspace, finding); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	gaps = <span class="built_in">append</span>(gaps, gapWithReason(vulnEmulationGapLabel, err.Error()))</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> _, section := <span class="keyword">range</span> vulnSections &#123;</span><br><span class="line">	<span class="keyword">if</span> !sectionSatisfied(finding, section, workspace) &#123;</span><br><span class="line">		gaps = <span class="built_in">append</span>(gaps, section.label)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 复核门：八段齐备只说明材料收齐，报告正文还得过 AI 复核才能打包。</span></span><br><span class="line"><span class="keyword">if</span> state, err := s.loadVulnGuideState(...); err == <span class="literal">nil</span> &amp;&amp; state != <span class="literal">nil</span> &amp;&amp; state.Complete &#123;</span><br><span class="line">	<span class="keyword">if</span> !state.Reviewed &#123;</span><br><span class="line">		gaps = <span class="built_in">append</span>(gaps, gapWithReason(vulnReviewGapLabel, state.ReviewError))</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> reason := reviewDriftReason(workspace, finding, state); reason != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		gaps = <span class="built_in">append</span>(gaps, gapWithReason(vulnReviewGapLabel, reason))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>gapWithReason</code> 会把原因拼在缺口名后面（<code>本地仿真验证：证据里看不到目标被起来的痕迹……</code>），最长 160 字裁断。</p>
+<p>界面上每一条缺口就是一行能读懂的人话，操作员不必去猜平台为什么不出包。</p>
+<hr>
+<h2><span id="三-过程约束分段引导与校验回环">三、过程约束：分段引导与校验回环</span></h2><h3><span id="为什么要有它">为什么要有它</span></h3><p>一开始我和大家的想法一样：把要求写清楚，Agent 自己就会按格式产出。</p>
+<p>结果挺难看。同一个任务里它会给我三段”我觉得这里有洞”的散文，复现步骤的具体命令和数学答案一样“略略略”，报告内容结构东一块西一块（逻辑体系可读性低），报告我拿过来还得重写一遍。</p>
+<p>问题多半出在模型被允许一次性自由发挥，而质量这种东西一旦自由发挥就没法校验。</p>
+<p>于是换成：先登记，再逐段填充，每段都过校验，填不完不算完成。以较长的输入去约束得到更标准的、较少的输出（我称为“<strong>分段式引导设计</strong>”）</p>
+<p>漏洞资料的 8 个段落与交付报告的章节一一对应：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/vuln_guided.go</span></span><br><span class="line"><span class="comment">// vulnSections 是段落顺序与格式的单一事实源（提示词协议与之对应）。</span></span><br><span class="line"><span class="keyword">var</span> vulnSections = []vulnSection&#123;</span><br><span class="line">	&#123;name: <span class="string">&quot;vulnInfo&quot;</span>, label: <span class="string">&quot;漏洞信息&quot;</span>, example: <span class="string">`&#123;&quot;vulnType&quot;: &quot;命令注入&quot;, &quot;severity&quot;: &quot;high&quot;, &quot;component&quot;: &quot;/bin/httpd&quot;, &quot;confidence&quot;: 90&#125;`</span>,</span><br><span class="line">		hint: <span class="string">&quot;content.vulnType 与 content.component 非空（中文漏洞类型 + 受影响组件/接口），content.severity 取 critical/high/medium/low，content.confidence 为 1-100 的整数（复现确证程度，未实测确证写 60-80，已拿到回显写 90 以上）&quot;</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;description&quot;</span>, label: <span class="string">&quot;漏洞描述&quot;</span>, <span class="comment">/* … */</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;codeAnalysis&quot;</span>, label: <span class="string">&quot;代码分析步骤&quot;</span>, hint: <span class="string">&quot;…逐条写明分析动作与证据来源（函数名/文件:行号/反汇编地址），从入口点定位→参数追踪→危险调用确认→交叉验证，不少于 2 步；这是审核者复核的依据，不要写成结论复述&quot;</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;codeLocation&quot;</span>, label: <span class="string">&quot;代码位置&quot;</span>, <span class="comment">/* … */</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;reproduce&quot;</span>, label: <span class="string">&quot;复现步骤&quot;</span>, hint: <span class="string">&quot;…为可直接照做的编号步骤，逐条给出具体命令：从校验固件哈希、解包、启动仿真/目标服务，到运行 poc/exp 触发并给出预期回显…&quot;</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;poc&quot;</span>, label: <span class="string">&quot;PoC/Exp 脚本&quot;</span>, <span class="comment">/* … */</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;evidence&quot;</span>, label: <span class="string">&quot;证据文件&quot;</span>, hint: <span class="string">&quot;content.paths 至少 1 项，全部为工作区内已存在文件（命令转录/日志/回显）&quot;</span>&#125;,</span><br><span class="line">	&#123;name: <span class="string">&quot;fixAdvice&quot;</span>, label: <span class="string">&quot;修复建议&quot;</span>, <span class="comment">/* … */</span>&#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这张表同时驱动三处：<strong>下发引导提示词、校验提交规则、渲染报告和 docx 章节</strong>。</p>
+<p>填写要求与最终交付内容都出自同一份定义，不会出现对不齐的情况。</p>
+<p>在工程上这叫<strong>单一事实源（SSOT）</strong>，放到审计场景里，它换来的是<strong>可校验性</strong>。</p>
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img3.png"></p>
+<h3><span id="打回是下一句提示词的开头">打回是下一句提示词的开头</span></h3><p>校验不通过时，平台只记日志没有意义，得把具体原因拼回下一次引导里：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// recordVulnFillFailure 记录段落校验失败：重试计数 + 最近错误，超限后停等转人工</span></span><br><span class="line">state.Retries[name]++</span><br><span class="line">state.LastError = fillErr.Error()</span><br><span class="line"><span class="keyword">if</span> state.Retries[name] &gt;= vulnGuideMaxRetries &#123;   <span class="comment">// 同一段连续 3 次不过</span></span><br><span class="line">	state.GuideSent = <span class="string">&quot;stalled:&quot;</span> + name          <span class="comment">// 停等，转人工接管，不再骚扰模型</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// buildVulnGuideMessage 组装下一次引导时，把打回原因原样带回去</span></span><br><span class="line"><span class="keyword">if</span> state.LastError != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">	builder.WriteString(<span class="string">&quot;上一次提交未通过校验：&quot;</span> + state.LastError + <span class="string">&quot;。请修正后重新提交。\n&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回执也是新加的。以前 Agent 提交完文件就被平台挪走了，它不知道文件是收了还是拒了，只能凭感觉重来，于是出现”同一个漏洞登记三次”。现在每个 inbox 文件都按原名在 <code>.cpi/vulns/receipts/</code> 留一份 <code>accepted / rejected + 原因 + 下一步</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s.writeVulnReceipt(task.ID, dirEntry.Name(), vulnReceipt&#123;</span><br><span class="line">	Status: <span class="string">&quot;accepted&quot;</span>, Kind: <span class="string">&quot;fill&quot;</span>, VulnKey: state.VulnKey, FindingID: state.FindingID,</span><br><span class="line">	Section: fill.Section, Scaffold: vulnScaffoldRelativeDir + <span class="string">&quot;/&quot;</span> + state.DirKey,</span><br><span class="line">	Next: fmt.Sprintf(<span class="string">&quot;段落已入库（进度 %d/%d）；等待平台下发下一段引导，不要自行填写其它段落&quot;</span>, state.SectionIndex, <span class="built_in">len</span>(vulnSections)),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="一次只推进一个漏洞投递还要对账">一次只推进一个漏洞，投递还要对账</span></h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sendPendingVulnGuides 按登记顺序串行驱动引导（节选）</span></span><br><span class="line"><span class="keyword">for</span> index, state := <span class="keyword">range</span> states &#123;</span><br><span class="line">	<span class="keyword">if</span> state.Complete || state.stalled() &#123; <span class="keyword">continue</span> &#125;</span><br><span class="line">	<span class="keyword">if</span> !state.NextGuideAt.IsZero() &amp;&amp; time.Now().Before(state.NextGuideAt) &#123;</span><br><span class="line">		<span class="keyword">return</span>          <span class="comment">// 队首正在退避：整条队列等待，不跳到后面的漏洞</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> state.GuideSent == state.guideKey() &amp;&amp; !s.rearmLostGuide(ctx, task.ID, state) &#123;</span><br><span class="line">		<span class="keyword">return</span>          <span class="comment">// 队首仍在等待回应</span></span><br><span class="line">	&#125;</span><br><span class="line">	s.deliverVulnGuide(ctx, task, state, <span class="built_in">len</span>(states)-index<span class="number">-1</span>)</span><br><span class="line">	<span class="keyword">return</span>              <span class="comment">// 一次只推进队首一个漏洞</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>rearmLostGuide</code> 管的是另一件更隐蔽的事：写 FIFO 成功，并不代表 Agent 收到了。</p>
+<p>Pi 在回合中间不读 stdin，消息可能被整轮吞掉。所以每次投递记下时刻，超时窗口内等不到任何一次段落提交，就判定这条没送到，重投；重投超限发一条 <code>audit.guide.lost</code> 提醒人工，而不是假装发过了。</p>
+<p>实践任务判定日志：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2026-09-21T08:13:54  audit.guide.lost  VULN_01_CWE78_pingSet</span><br><span class="line">第 3/8 段引导（代码分析步骤）投递后 4m0s 内没有任何回应，判定为未送达；</span><br><span class="line">已重投或转长退避，可检查过程时间线或补充提示唤醒 Agent。   attempts=1 backoff=600s</span><br></pre></td></tr></table></figure>
+
+<h3><span id="效果对比由ai对本地任务数据的情况统计">效果对比（由AI对本地任务数据的情况统计）</span></h3><p>下面每行都是本平台跑出来的任务事件，任务号在最后面的编辑提示里：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>引导方式</th>
+<th>段落入库</th>
+<th>打回</th>
+<th>结局</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>9&#x2F;19 14:17</td>
+<td>5 个漏洞并行下发首段</td>
+<td>0</td>
+<td>0</td>
+<td>引导发完就没下文，5 条全部无回应</td>
+</tr>
+<tr>
+<td>9&#x2F;20 06:33</td>
+<td>4 个漏洞并行，已加校验回环</td>
+<td>4（全是首段）</td>
+<td>12</td>
+<td>4 条一起卡在第 2 段（复现步骤），任务最终失败</td>
+</tr>
+<tr>
+<td>9&#x2F;21 01:20</td>
+<td>单漏洞串行推进</td>
+<td>8&#x2F;8</td>
+<td>4</td>
+<td>6 分 48 秒填齐，全部自愈</td>
+</tr>
+<tr>
+<td>9&#x2F;21 08:14</td>
+<td>串行 + 8 段 + 回执 + 送达判定</td>
+<td>24&#x2F;24（3 个漏洞）</td>
+<td>7 + 1 次投递判丢重投</td>
+<td>恢复后队首漏洞 6 分填完 7 段，第二、三个各用 4 分 40 秒、3 分 36 秒</td>
+</tr>
+</tbody></table>
+<p>在第二行对应的任务中的 12 次打回里，有 8 次是同一个原因：Agent 爱把步骤写成 JSON 数组，而校验只认字符串。表面看像模型不配合，其实是我平台太挑剔。折中之后两种写法都收，数组自动折叠成编号行：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// stepsPayload 解析 &#123;&quot;steps&quot;: …&#125;：字符串与字符串数组两种写法都接受（节选）</span></span><br><span class="line"><span class="keyword">var</span> lines []<span class="type">string</span></span><br><span class="line"><span class="keyword">if</span> err := json.Unmarshal(wrapper.Steps, &amp;lines); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> errors.New(<span class="string">`content.steps 必须是字符串或字符串数组`</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> index, line := <span class="keyword">range</span> lines &#123;</span><br><span class="line">	<span class="keyword">if</span> numberedCommandStep.MatchString(trimmed) &#123;</span><br><span class="line">		builder.WriteString(trimmed)   <span class="comment">// 已经带 &quot;1. &quot; 就照抄</span></span><br><span class="line">		<span class="keyword">continue</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprintf(&amp;builder, <span class="string">&quot;%d. %s&quot;</span>, index+<span class="number">1</span>, trimmed)   <span class="comment">// 没编号就补上</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>剩下的打回原因是真在拦东西。9&#x2F;21 那次队首漏洞的 6 条打回，原文如下（一条都没加工）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">description   content.text 不能为空且不少于 30 字（当前不足）</span><br><span class="line">codeAnalysis  content 应为 &#123;&quot;steps&quot;: string | string[]&#125;： content 缺少 steps 字段</span><br><span class="line">codeLocation  content.filePath 必填，且需至少给出片段或行号区间</span><br><span class="line">reproduce     content 应为 &#123;&quot;steps&quot;: string | string[]&#125;： content 缺少 steps 字段</span><br><span class="line">poc           content.path 必须是工作区相对路径（不得为绝对路径或越界）</span><br><span class="line">evidence      content.paths 至少需要 1 个有效的工作区相对路径</span><br></pre></td></tr></table></figure>
+
+<p>同一条漏洞填齐之后的复现步骤，从空变成 970 字的命令级链路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">1. 校验并解包固件：</span><br><span class="line">   sha256sum ./US_….zip</span><br><span class="line">   # 预期：e8a3369f5c62a737…6819fa00</span><br><span class="line">   bash ./extract_firmware.sh</span><br><span class="line">2. 静态验证漏洞存在：</span><br><span class="line">   python3 ./verify_cmdi.py</span><br><span class="line">   # [STEP 3] Found format string at offset 0x49318: ping %s -%d -c %d -s %d -W %d</span><br><span class="line">   # [RESULT] VULNERABILITY CONFIRMED</span><br><span class="line">3. 启动仿真平台：</span><br><span class="line">   bash ./firmware.sh</span><br><span class="line">3. 启动目标设备或仿真环境后，发送未授权命令注入请求：</span><br><span class="line">   python3 ./poc_cmdi_ping.py &lt;目标IP&gt; 80</span><br><span class="line">   curl -X POST http://&lt;目标IP&gt;/goform/modules -H &#x27;Content-Type: application/json&#x27; \</span><br><span class="line">        -d &#x27;&#123;&quot;pingSet&quot;:&#123;&quot;pingIp&quot;:&quot;;id;#&quot;,&quot;pingNum&quot;:1,&quot;pingSize&quot;:32&#125;&#125;&#x27;</span><br><span class="line">   # 预期：响应中包含 uid=0(root)</span><br></pre></td></tr></table></figure>
+
+<p>「代码位置」段也不再是一句”在 httpd 里”，而是可核对的反汇编：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/lib/libapcommon.so  0xf2bc-0xf354</span><br><span class="line">0xf310: addiu a2, v0, -27880   // a2 = &quot;ping %s -%d -c %d -s %d -W %d&quot; 格式串</span><br><span class="line">0xf328: jalr t9                // → snprintf(buf, 256, &quot;ping %s ...&quot;, ip, ...)</span><br><span class="line">0xf354: jalr t9                // → doSystemCmd(buf) 执行</span><br></pre></td></tr></table></figure>
+
+<p>报告质量变成了可校验的状态，靠的是判据和回环，文件索引级审计分析报告使最终报告的可靠性和可读性显著增大。</p>
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img4.png"></p>
+<hr>
+<h2><span id="四-结果门之一收口门状态判定的前置条件">四、结果门之一：收口门——状态判定的前置条件</span></h2><p>引导管过程，这道门管结论。任务结束判定之前，平台先看一遍引导进度，没填完就不许说完成：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pauseForUnfinishedGuides 是&quot;资料没填完就不算完成&quot;的收口闸门（节选）</span></span><br><span class="line">blockers := s.guideBlockers(task.ID)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(blockers) == <span class="number">0</span> &#123; <span class="keyword">return</span> <span class="literal">false</span> &#125;</span><br><span class="line"><span class="keyword">for</span> _, blocker := <span class="keyword">range</span> blockers &#123;</span><br><span class="line">	state := <span class="string">&quot;等待引导续填&quot;</span></span><br><span class="line">	<span class="keyword">if</span> blocker.Stalled &#123; state = <span class="string">&quot;连续校验失败已停等人工接管&quot;</span>; stalled++ &#125;</span><br><span class="line">	lines = <span class="built_in">append</span>(lines, fmt.Sprintf(<span class="string">&quot;- %s（%s）：已填 %d/%d 段，当前缺「%s」，%s&quot;</span>,</span><br><span class="line">		blocker.VulnKey, blocker.Scaffold, blocker.Filled, blocker.Total, label, state))</span><br><span class="line">&#125;</span><br><span class="line">message := <span class="string">&quot;Agent 已结束，但漏洞资料未填完，任务未判定为完成，已转入暂停中。待填清单：\n&quot;</span> + strings.Join(lines, <span class="string">&quot;\n&quot;</span>) +</span><br><span class="line">	<span class="string">&quot;\n可补充提示恢复任务让 Agent 继续响应引导，或在漏洞页人工补填后确认。&quot;</span></span><br><span class="line">_ = s.store.UpdateTaskState(ctx, task.ID, platform.TaskPaused, task.Runtime, task.ContainerID, summary)</span><br></pre></td></tr></table></figure>
+
+<p>实践过程的能力反馈： 9&#x2F;21 任务，当天 07:12 上游模型连续返回 500 导致项目收敛，会话直接结束，Agent 一条总结都没留下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2026-09-21T07:12:57  task.paused</span><br><span class="line">Agent 已结束，但收口门未通过，任务未判定为完成，已转入暂停中。待补清单：</span><br><span class="line">- VULN_01_CWE78_pingSet（vulns/VULN_01_CWE78_pingSet）：已填 2/8 段，当前缺「代码分析步骤」，等待引导续填</span><br><span class="line">- VULN_02_CWE798_hardcoded_password（vulns/…）：已填 0/8 段，当前缺「漏洞信息」，等待引导续填</span><br><span class="line">- VULN_03_CWE912_telnet_backdoor（vulns/…）：已填 0/8 段，当前缺「漏洞信息」，等待引导续填</span><br><span class="line">2026-09-21T08:13:51  task.resumed   已使用原容器与原 Pi 会话继续审计</span><br></pre></td></tr></table></figure>
+
+<p>一小时后我触发“恢复审计”，同一条漏洞接着从第 3 段填到第 8 段，前后 6 分钟。（狠狠夸下自己“断点续传”的设计）</p>
+<p>同一套思路还管着另一种尴尬：Agent 跑完了、一条漏洞都没有。这种情况以前会把任务停在”运行中”，看着像还在干活。现在统一收口成”暂停中”，并把缘由写进状态字段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 与手动暂停的区别是必须把缘由落到 last_error：自动暂停没有操作员在场，</span></span><br><span class="line"><span class="comment">// 若原因只存在于事件流里，用户看到的只剩一个&quot;已暂停&quot;徽章。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Service)</span></span> pauseAfterEmptyAudit(taskID <span class="type">string</span>, task platform.Task) &#123;</span><br><span class="line">	summary := <span class="string">&quot;本轮未上报任何漏洞发现，已自动暂停等待补充提示&quot;</span></span><br><span class="line">	_ = s.store.UpdateTaskState(context.Background(), taskID, platform.TaskPaused, task.Runtime, task.ContainerID, summary)</span><br><span class="line">	_, _ = s.emit(... <span class="string">&quot;审计会话已结束，但本轮未上报任何漏洞发现：任务已转入暂停中。可补充提示（如指定攻击面或解包方式）后恢复继续审计…&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>平台自己做的决定，就得自己解释——自动决策的可解释性同样也是产品的一部分。</p>
+<hr>
+<h2><span id="五-结果门之二本地仿真验证硬门证据只认运行时输出">五、结果门之二：本地仿真验证硬门——证据只认运行时输出</span></h2><h3><span id="动机来自一份看起来很好的资料">动机来自一份看起来很好的资料</span></h3><p>实践过程负反馈：9&#x2F;21的任务，三条漏洞全部 8&#x2F;8 填齐、全部打包成功。其中命令注入那条的复现步骤末尾，Agent 自己写了这么一行（真实数据，只删去敏感信息）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">验证级别说明：本漏洞通过深度静态分析完成证实，正则绕过已通过 Python 脚本验证，</span><br><span class="line">完整调用链已通过 rizin 反汇编确认。</span><br></pre></td></tr></table></figure>
+
+<p>翻译为人话：目标它没起来过。可这条资料字段齐全、逻辑自洽、反汇编精确到指令，顺利出了包。</p>
+<p>静态分析做得再漂亮，它也只是分析；CNVD 评审要的”已成功复现”，缺的就是这一步。</p>
+<p>所以加了硬门，判据两条：复现步骤里要有实际生效的启动命令，证据文件里要同时出现”目标被起来”和”目标给出结果”两类痕迹。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// emulationEchoTracePatterns 是&quot;目标给出了结果&quot;的痕迹（节选）</span></span><br><span class="line"><span class="comment">// 刻意不收裸 popen(/system( 这类字样——反编译伪代码里几乎每个命令注入点都有它们，</span></span><br><span class="line"><span class="comment">// 收进来等于允许拿静态片段冒充验证；只认运行时真正打出来的结果。</span></span><br><span class="line"><span class="keyword">var</span> emulationEchoTracePatterns = []*regexp.Regexp&#123;</span><br><span class="line">	regexp.MustCompile(<span class="string">`uid=0\(|uid=\s*0\b`</span>),</span><br><span class="line">	regexp.MustCompile(<span class="string">`(?i)&lt;\s*http/1\.[01] [23]\d\d|http_code[^&quot;]*&quot;?[23]\d\d`</span>),</span><br><span class="line">	regexp.MustCompile(<span class="string">`(?i)connection from |connect to \[|RECV from |PWNED_CNVD`</span>),</span><br><span class="line">	regexp.MustCompile(<span class="string">`(?m)^\s*root@|shell&gt;|\$ whoami\s*$`</span>),</span><br><span class="line">	regexp.MustCompile(<span class="string">`(?i)captured (command|argv)|final command|\[CMD-CONSTRUCTED\]|VERDICT SUCCESS|\[IMPORT\]\s*(popen|system)\(`</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>痕迹是从文件里读出来的，Agent 没法靠蒙混过关。</p>
+<p>证据是 <code>script -qec</code> 命令转录和 FirmAE 日志，关键回显往往在结尾，只读头部会把真验证误判成未验证。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// readEvidenceTrace 小文件整读，大文件读头 emulationTraceMaxBytes + 尾 emulationTraceTailBytes 两段</span></span><br><span class="line"><span class="keyword">const</span> emulationTraceMaxBytes = <span class="number">256</span> &lt;&lt; <span class="number">10</span>   <span class="comment">// 头窗 256 KiB</span></span><br><span class="line"><span class="keyword">const</span> emulationTraceTailBytes = <span class="number">128</span> &lt;&lt; <span class="number">10</span>  <span class="comment">// 尾窗 128 KiB</span></span><br><span class="line"><span class="keyword">const</span> emulationTraceMaxFiles = <span class="number">12</span>          <span class="comment">// 最多 12 份证据参与匹配</span></span><br></pre></td></tr></table></figure>
+
+<p>两类痕迹都取不到时，缺口原因长这样（真实输出）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">本地仿真验证：证据里看不到目标被起来的痕迹（需含 qemu/FirmAE/Unicorn 启动输出或服务</span><br><span class="line">Listening 回显），请按分级方案实际启动目标并把启动命令的转录登记进证据</span><br></pre></td></tr></table></figure>
+
+<p>段落引导阶段它也在拦。9&#x2F;21 第二条漏洞的复现段被打回过一次，原因写得很具体：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">复现步骤缺少把目标跑起来的具体命令：需至少一条仿真/服务启动命令（如 bash ./run_emulation.sh、</span><br><span class="line">qemu-mipsel-static -L . ./bin/httpd、FirmAE ./run.sh &lt;固件&gt;），或说明 QEMU 不可行的证据后</span><br><span class="line">改用 Unicorn/pwntools 单函数验证（repro-driver.py）……</span><br></pre></td></tr></table></figure>
+
+<p>有一类漏洞不必起目标：硬编码密钥、弱口令这类，文件系统里就能确证。</p>
+<p>类型豁免写在 <code>emulationExemptKeywords</code> + <code>normalizeVulnType</code> 里，避免门变成死规矩。</p>
+<hr>
+<h2><span id="六-结果门之三资产证明门版本信息必须在头两步">六、结果门之三：资产证明门——版本信息必须在头两步</span></h2><p>CNVD 报告的第一诉求其实很朴素：先证明你复现的是这块固件（需要展示版本号&#x2F;固件信息）。解包之后一条 <code>cat</code> 把版本信息打出来，评审者一眼就能对上报告标注的版本号。这一步 Agent 从来不会主动写，因为提示词里没人要求过。</p>
+<p>实现单独一个文件，判据是”命令动词 + 版本载体在头两个编号步骤内同现”：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/version_proof.go（节选）</span></span><br><span class="line"><span class="comment">// versionProofCommand 认一条&quot;读取/打印版本信息&quot;的命令：命令动词 + 版本载体</span></span><br><span class="line"><span class="comment">// （版本文件、版本接口或中文&quot;版本&quot;字样）同现于一个步骤里。</span></span><br><span class="line"><span class="keyword">var</span> versionProofCommand = regexp.MustCompile(<span class="string">`(?is)\b(cat|more|head|tail|strings|grep|sed|awk|xxd|od|curl|wget|python3?|php|printenv|show|display)\b[^\n]*(prodversion|fireversion|version|_ver\b|ver\.cfg|固件版本|版本信息)`</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// splitNumberedSteps 按编号行把复现步骤切成若干步骤正文（每段含其续行）。</span></span><br><span class="line"><span class="comment">// RE2 不支持前瞻，所以这里按行扫描而非一条正则切分。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">splitNumberedSteps</span><span class="params">(steps <span class="type">string</span>)</span></span> []<span class="type">string</span> &#123; … &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// validateFirmwareVersionProof 要求前两个编号步骤里有一条给出固件版本信息命令。</span></span><br><span class="line">probe := chunks</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(probe) &gt; <span class="number">2</span> &#123; probe = probe[:<span class="number">2</span>] &#125;</span><br><span class="line"><span class="keyword">for</span> _, chunk := <span class="keyword">range</span> probe &#123;</span><br><span class="line">	<span class="keyword">if</span> versionProofPresent(chunk) &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;复现的首要步骤要用命令展示固件版本信息（前两步之内，起目标之前）：解包后 cat 版本文件&quot;</span>+</span><br><span class="line">	<span class="string">&quot;（如 ./rootfs/etc_ro/prodversion.cfg、./rootfs/etc_ro/fireversion.cfg、/etc/version）或回读设备版本接口，&quot;</span>+</span><br><span class="line">	<span class="string">&quot;并让输出与报告的固件版本一致；当前第一步：%s&quot;</span>, first)</span><br></pre></td></tr></table></figure>
+
+<p>只看前两步是有原因的：哈希校验和解包通常占掉第一步，版本信息紧随其后才叫”首要步骤”。拖到起目标、发 payload 之后再提版本，就成了顺带说一句，评审者无法据此确认前面每一步操作的是哪份固件。</p>
+<p>接线点在段落校验里，复现段一次过三道判据：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/vuln_guided.go  case &quot;reproduce&quot;:（节选）</span></span><br><span class="line"><span class="keyword">if</span> err := validateNumberedSteps(steps, <span class="number">40</span>, <span class="number">3</span>, <span class="string">&quot;请覆盖校验哈希→解包→起目标前用命令展示固件版本信息&quot;</span>+</span><br><span class="line">	<span class="string">&quot;（CNVD 资产证明）→启动仿真/目标→运行 poc/exp→预期回显，并按脚本与固件包同目录书写（./&lt;固件包名&gt;、./poc.py）&quot;</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> err := validateFirmwareVersionProof(steps); err != <span class="literal">nil</span> &#123; <span class="keyword">return</span> err &#125;</span><br><span class="line"><span class="keyword">if</span> err := validateEmulationLaunch(steps); err != <span class="literal">nil</span> &#123; <span class="keyword">return</span> err &#125;</span><br></pre></td></tr></table></figure>
+
+<p>同一条判据还有第二个出口：<code>versionProofDefect</code> 被报告复核门复用，引导阶段和复核阶段是同一把尺子。</p>
+<hr>
+<h2><span id="七-结果门之四报告复核门以及对事后回改的重开">七、结果门之四：报告复核门，以及对”事后回改”的重开</span></h2><p>八段资料填齐只说明材料收齐了，报告正文还得写对。正文由 Agent 撰写，路径固定在该漏洞资料夹里的 <code>report.md</code>，它是交付报告的唯一事实源（docx 由 pandoc 从它转换）。平台不下发”请自检一下”这种没判据的要求，而是把正文和已入库的结构化字段逐条对账：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/vuln_review.go  文件头注释（节选）</span></span><br><span class="line"><span class="comment">//  1. 章节齐备——标题、漏洞信息、固件信息、漏洞描述、审计分析、复现步骤、</span></span><br><span class="line"><span class="comment">//     PoC、证据、修复建议九节必须存在且非空（缺节即打回）；</span></span><br><span class="line"><span class="comment">//  2. 全链完整——复现步骤必须覆盖&quot;校验哈希/解包 → 启动仿真或目标 → 触发</span></span><br><span class="line"><span class="comment">//     PoC → 预期回显&quot;四个环节，且至少 3 条编号步骤；</span></span><br><span class="line"><span class="comment">//  3. 正文与结构化字段一致——复现段引用的脚本、证据段列出的文件、审计段</span></span><br><span class="line"><span class="comment">//     标注的代码位置，必须与引导填好的 finding 字段对得上；</span></span><br><span class="line"><span class="comment">//  4. 可读性下限——正文长度与描述、修复建议的字数达标，且必须写明本轮修订了什么；</span></span><br><span class="line"><span class="comment">//  5. 本地仿真验证——复用 emulation.go 的 validateEmulationVerification。</span></span><br></pre></td></tr></table></figure>
+
+<p>章节由 <code>reportAnchors</code> 声明（关键词 + 该章节的附加校验），复现章节挂 <code>requireReproduceChain</code>，里面同时调用版本证明判据；正文长度下限 <code>vulnReportMinRunes = 800</code>，低于这个数必然是骨架稿。连续 <code>vulnReviewMaxRounds = 3</code> 轮不过转停等，和段落引导一个口径。</p>
+<p>人工”确认”仍然是最权威的终审，它会直接解除复核门：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// resolveVulnReviewByHuman：确认动作本身就是比 AI 复核更权威的终审，</span></span><br><span class="line"><span class="comment">// 若仍留着复核要求，任务会带着已确认的漏洞一直停在&quot;暂停中&quot;。</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="过了门也不是一劳永逸">过了门也不是一劳永逸</span></h3><p><code>report.md</code> 是可写的。复核通过后 Agent 再改正文、把资料夹里的证据文件删了，”已复核”就变成一句过期的话。所以交付门的判定里对已过复核的漏洞再跑一次同一套对账，一旦发现漂移就把复核门重开：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DeliveryGaps 只读报告缺口，不改状态；重开由引导队列负责（节选）</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> reason := reviewDriftReason(workspace, finding, state); reason != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">	gaps = <span class="built_in">append</span>(gaps, gapWithReason(vulnReviewGapLabel, reason))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// reopenVulnReview 把已通过的复核门重新打开</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Service)</span></span> reopenVulnReview(ctx context.Context, task platform.Task, state *vulnGuideState, reason <span class="type">string</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> state.ReviewReopens &gt;= vulnReviewMaxReopens &#123; <span class="keyword">return</span> <span class="literal">false</span> &#125;   <span class="comment">// 上限 2 次，不占死队列</span></span><br><span class="line">	state.ReviewReopens++</span><br><span class="line">	state.Reviewed = <span class="literal">false</span></span><br><span class="line">	state.ReviewError = <span class="string">&quot;复核通过后报告又出现缺口：&quot;</span> + reason</span><br><span class="line">	_, _ = s.emit(ctx, platform.Event&#123;TaskID: task.ID, Source: <span class="string">&quot;audit&quot;</span>, Type: <span class="string">&quot;audit.review.reopened&quot;</span>, Payload: …&#125;)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有个细节我特意留着：<code>DeliveryGaps</code> 只报告缺口，状态变更只在 <code>reopenVulnReview</code> 一处。读一次判据函数就顺手改一次状态，是这类监视循环最容易出双写冲突的地方。</p>
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img5.png"></p>
+<hr>
+<h2><span id="八-运行时约束给一次工具调用上计时器">八、运行时约束：给”一次工具调用”上计时器</span></h2><p>固件审计最常见的翻车现场，是命令没报错、却永远不回来。</p>
+<p>吃了实践任务的亏：Agent 本意执行 <code>ping 1;id</code>，参数被目标拼成 <code>ping 1 -c 4 …</code>，对面不回包，进程挂住 1 小时 44 分钟，把任务总时长吃光，期间已产出的证据全部作废。任务级超时挡不住这种事，因为它的粒度是”整个任务”。</p>
+<p>现在的看护阈值是这么定的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	toolStallTimeout      = <span class="number">15</span> * time.Minute <span class="comment">// 单个工具调用允许的最长静默，给 binwalk 解包留余量</span></span><br><span class="line">	sessionSilenceTimeout = <span class="number">30</span> * time.Minute <span class="comment">// 整个会话零事件回流，比工具静默更宽松，避免误伤长推理</span></span><br><span class="line">	stallHintDeliverTimeout = <span class="number">5</span> * time.Minute <span class="comment">// 中止后等会话转空闲的时限，超时视为 abort 未被接受</span></span><br><span class="line">	maxStallResolutions   = <span class="number">3</span>                <span class="comment">// 连续 3 次中止无效就提前判失败，不拖满总时长</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *sessionWatch)</span></span> decide(now time.Time, busy, userPaused <span class="type">bool</span>) (watchAction, stallReport) &#123;</span><br><span class="line">	<span class="keyword">if</span> userPaused &#123;</span><br><span class="line">		<span class="keyword">return</span> watchNone, stallReport&#123;&#125;    <span class="comment">// 暂停期由人掌握节奏，看护不插手</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> w.pendingHint != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> !busy &#123; <span class="keyword">return</span> watchDeliver, stallReport&#123;&#125; &#125;           <span class="comment">// 会话空了，把纪律提示回注</span></span><br><span class="line">		<span class="keyword">if</span> now.Sub(w.hintSince) &lt; stallHintDeliverTimeout &#123; <span class="keyword">return</span> watchNone, stallReport&#123;&#125; &#125;</span><br><span class="line">		report := stallReport&#123;kind: stallSessionSilence, silent: now.Sub(w.lastEvent)&#125;</span><br><span class="line">		<span class="keyword">if</span> w.resolutions &gt;= maxStallResolutions &#123; <span class="keyword">return</span> watchGiveUp, report &#125;</span><br><span class="line">		<span class="keyword">return</span> watchAbort, report</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> !busy &#123; <span class="keyword">return</span> watchNone, stallReport&#123;&#125; &#125;</span><br><span class="line">	report := w.stallReport(now)</span><br><span class="line">	<span class="keyword">if</span> !report.stalled() &#123; <span class="keyword">return</span> watchNone, stallReport&#123;&#125; &#125;</span><br><span class="line">	<span class="keyword">if</span> w.resolutions &gt;= maxStallResolutions &#123; <span class="keyword">return</span> watchGiveUp, report &#125;</span><br><span class="line">	<span class="keyword">return</span> watchAbort, report</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>判静默的依据是：Pi 的 bash 工具边执行边回流输出，只要还在往外吐字就不算卡死；并行调用时取”最近活动最新”的那个作判据，避免一个还在跑、另一个卡住被误杀。</p>
+<p>15 分钟这个值也是从数据里挑的——本机运行库 419 次已完成的工具调用里，最长两次是 16.2 分钟和 15.6 分钟，内容都是 <code>find / -name …</code> 全盘扫描；再往上就该被拦。</p>
+<p>处置动作是分级的：先中止回合，紧接着把执行纪律原样重新说一遍，并把剩余预算摊开讲清楚，实在不认账才提前判失败：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">【平台看护 · 回合已中止】</span><br><span class="line">工具调用 bash 已连续 15m 没有任何输出回流，平台已中止当前回合，以免耗尽任务总时长（剩余预算 63m）。</span><br><span class="line">继续前必须改用非阻塞形态：</span><br><span class="line">1. 可能阻塞或等待回连的命令一律用 `timeout -s KILL 20 &lt;命令&gt;` 包裹，单次不超过 60 秒。</span><br><span class="line">2. 探测类命令必须自带次数与超时，例如 `ping -c 2 -W 2 &lt;目标&gt;`；严禁裸 `ping &lt;目标&gt;`。</span><br><span class="line">3. 确实需要长时间运行的命令改为后台执行 + 轮询日志…</span><br><span class="line">被中止的命令：</span><br><span class="line">    ping 1 -c 4 -s 32 -W 4</span><br><span class="line">请从中断点继续，不要原样重复刚才那条命令。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img6.png"></p>
+<hr>
+<h2><span id="九-环境约束会话级-overlay-临时根">九、环境约束：会话级 overlay 临时根</span></h2><p>隔离走的 WSL2 独立发行版 + 命名空间，使用会话级 overlay 临时根实现任务隔离：Agent 在回合里 <code>apt install</code>、改 <code>/etc</code>、往 <code>/root</code> 写东西全部成功，但写进的是这个会话私有的 upper 层，回合结束随命名空间一起销毁。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># internal/sandbox/scripts/firmaudit-task.sh  cmd_session_root()（节选）</span></span><br><span class="line"><span class="comment"># 动机：发行版 rootfs 被所有任务共享且长期存活，Agent 的绝对路径写入会永久污染</span></span><br><span class="line"><span class="comment"># 容器，上一任务的残留还会误导下一任务</span></span><br><span class="line">mount --make-rprivate /          <span class="comment"># 否则挂载点会回传父命名空间，泄漏给并发会话</span></span><br><span class="line">mount -t tmpfs firmaudit-upper <span class="string">&quot;<span class="variable">$SESSION_BASE</span>&quot;</span></span><br><span class="line">mount -t overlay firmaudit-root -o <span class="string">&quot;lowerdir=/,upperdir=<span class="variable">$upper</span>,workdir=<span class="variable">$work</span>&quot;</span> <span class="string">&quot;<span class="variable">$root</span>&quot;</span></span><br><span class="line">mount -t proc proc <span class="string">&quot;<span class="variable">$root</span>/proc&quot;</span></span><br><span class="line">mount --rbind /dev <span class="string">&quot;<span class="variable">$root</span>/dev&quot;</span>; mount --rbind /tmp <span class="string">&quot;<span class="variable">$root</span>/tmp&quot;</span>; mount --rbind /mnt <span class="string">&quot;<span class="variable">$root</span>/mnt&quot;</span></span><br><span class="line">mount -t tmpfs tmpfs-hidden <span class="string">&quot;<span class="variable">$root</span>/<span class="variable">$SESSION_BASE</span>&quot;</span>   <span class="comment"># 藏掉 overlay 内部结构</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="string">&quot;<span class="variable">$root</span>/workspace&quot;</span></span><br><span class="line"><span class="keyword">if</span> ! mount --<span class="built_in">bind</span> <span class="string">&quot;<span class="variable">$workspace</span>&quot;</span> <span class="string">&quot;<span class="variable">$root</span>/workspace&quot;</span>; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&#x27;[firmaudit-task] 错误：/workspace bind 失败（%s），终止会话以免产出逃逸\n&#x27;</span> <span class="string">&quot;<span class="variable">$workspace</span>&quot;</span> &gt;&amp;2</span><br><span class="line">    <span class="built_in">exit</span> 73                      <span class="comment"># 这一条绝不能降级继续</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">exec</span> <span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$root</span>&quot;</span> /bin/bash -c <span class="string">&#x27;cd /workspace 2&gt;/dev/null || cd /; exec &quot;$@&quot;&#x27;</span> _ <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>两个细节我比较在意：</p>
+<ul>
+<li>overlay 挂不上可以降级，退回只 bind <code>/workspace</code> 的最小隔离，不因隔离失败把任务卡死；</li>
+<li><code>/workspace</code> bind 不上必须直接退出。整套上报协议都以 <code>/workspace</code> 为锚，静默继续等于 Agent 往共享目录里写，产出一堆、平台一条收不到——这个事故我真踩过，比任务报错危险得多。</li>
+</ul>
+<p>另外任务状态落盘在 <code>.sandbox/&lt;key&gt;/</code>（env&#x2F;cmd&#x2F;rpc&#x2F;exit.code），包装器用 <code>setsid</code> 脱离父进程，程序重启不打断正在跑的审计。</p>
+<hr>
+<h2><span id="十-把约束写进提示词再用回归测试锁住">十、把约束写进提示词，再用回归测试锁住</span></h2><p>看护是兜底，更省事的是别让 Agent 写出会挂死的命令。审计和复现两个入口提示词里都有一节【非阻塞执行纪律】，四条硬约束：</p>
+<p><strong>1. 会打到目标 &#x2F; 仿真栈上的命令必须显式 <code>timeout -s KILL N</code> 包裹</strong>（会吞 SIGTERM 的守护进程要用 <code>-s KILL</code>）；</p>
+<p><strong>2. 探测自带次数与超时</strong>：<code>ping -c 2 -W 2</code>、<code>traceroute -m 5 -w 2</code>、<code>nc -w 3</code>、<code>curl -m 5 --retry 0</code>，严禁裸 ping；</p>
+<p><strong>3. 长命令后台化 + 轮询日志</strong>，不在前台干等；</p>
+<p><strong>4. 注入段放在被污染参数之前，并用 <code>#</code> &#x2F; <code>%23</code> 注释掉残余参数。</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">If pingIp = &#x27;1;id&#x27;, command becomes: ping 1;id -1 -c 1 -s 32 -W 5</span><br><span class="line">Shell interprets this as: (1) ping 1  (2) id -1 -c 1 -s 32 -W 5</span><br></pre></td></tr></table></figure>
+
+<p><code>ping 1</code> 是个不带 <code>-c</code> 的裸命令，永远不回；<code>id</code> 后面拖着 <code>-1 -c 1</code>，也执行不了。写成 <code>1 -c 1;id;#</code> 才对：先注入，再注释残余参数——第三节那条 970 字步骤里的 <code>&quot;;id;#&quot;</code> 就是这条约束生效之后的产物。</p>
+<p>提示词会被人改，改坏了很难发现，所以给它配了断言：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> nonBlockingMarkers = []<span class="type">string</span>&#123;</span><br><span class="line">	<span class="string">&quot;非阻塞执行纪律&quot;</span>, <span class="string">&quot;静默看门狗&quot;</span>, <span class="string">&quot;timeout -s KILL&quot;</span>, <span class="string">&quot;ping -c 2 -W 2&quot;</span>, <span class="string">&quot;被污染参数&quot;</span>, <span class="string">&quot;%23&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TestPromptsCarryNonBlockingDiscipline 验证四个入口 Prompt 变体（审计/复现的</span></span><br><span class="line"><span class="comment">// 外部模板与内嵌回退版）都同步了该硬约束。</span></span><br></pre></td></tr></table></figure>
+
+<p>这一轮加了三道门之后，同一套做法也用在了门口径上：复核引导里列出的五条必过项，逐条对应 <code>validateVulnReportMarkdown</code> 的实际判据；</p>
+<p><code>firmware.md</code>、<code>reproduce.md</code>、两个 skill 和<code>agents/common/AGENTS.md</code>里关于<strong>结果痕迹只认运行时输出</strong>的表述和 <code>emulationEchoTracePatterns</code> 的注释保持同一份措辞。</p>
+<hr>
+<h2><span id="十一-交付形态自包含平铺总包">十一、交付形态：自包含平铺总包</span></h2><p>这一段代码量最大，讲起来最没意思，但它是前面所有约束的落点。任务收口时，过了门的漏洞会被打成一个自包含的 CNVD 复现资料总包：</p>
+<ul>
+<li>一漏洞一档，材料全部平铺在包根，评审者不需要理解目录结构；</li>
+<li>固件保留上传时的原文件名随包，脚本自己定位同目录的固件包（<code>SCRIPT_DIR=$(cd &quot;$(dirname &quot;$0&quot;)&quot; &amp;&amp; pwd)</code>），复现步骤里的 <code>./&lt;固件包名&gt;</code> 才指得通；</li>
+<li>复现步骤到命令级，从校验哈希、出资产证明、起仿真到发请求，逐条能抄进终端；</li>
+<li>报告章节和第三节那张段落表同源，要求填的就是报告里有的。</li>
+</ul>
+<p>固件副本走同一条通道，取不到就显式失败：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packaging.CopyFirmwareInto（节选）：按 attachments/（审计）与 attachments/firmware/（复现）</span></span><br><span class="line"><span class="comment">// 两级候选探测，保留原名逐字节复制，上限 512 MiB。</span></span><br><span class="line">target := filepath.Join(dir, name)</span><br><span class="line"><span class="keyword">if</span> err := copyFileTo(candidate, target); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> FirmwareCopy&#123;&#125;, fmt.Errorf(<span class="string">&quot;copy firmware %s: %w&quot;</span>, candidate, err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> FirmwareCopy&#123;Source: candidate, Name: name, Size: info.Size()&#125;, <span class="literal">nil</span></span><br><span class="line">…</span><br><span class="line"><span class="keyword">return</span> FirmwareCopy&#123;&#125;, fmt.Errorf(<span class="string">&quot;工作区内找不到固件包副本 %s（已查：%s）&quot;</span>, name, strings.Join(checked, <span class="string">&quot;、&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>平铺装配用 <code>flatWriter</code>，它管三件事：内容哈希去重、认得已经在包里的文件、把该进包却没进的材料记下来。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> flatWriter <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// contents 是&quot;内容哈希 → 包内文件名&quot;。缺了它，Agent 在 scripts/ 与自己的</span></span><br><span class="line">	<span class="comment">// 漏洞资料目录各写一份同名脚本时，包里就会出现 poc.py 与 poc-1.py 两份等价材料。</span></span><br><span class="line">	contents <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span></span><br><span class="line">	<span class="comment">// landed 是&quot;包内已有、由调用方先行放入&quot;的文件（源路径 → 包内名）。总包的固件</span></span><br><span class="line">	<span class="comment">// 副本就是这种：材料引用它时若走常规复制，会因平铺材料的单文件体积上限被判为</span></span><br><span class="line">	<span class="comment">// 超限并记进跳过清单，等于向评审者谎报&quot;固件没进包&quot;。</span></span><br><span class="line">	landed <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span></span><br><span class="line">	<span class="comment">// skipped 登记&quot;该进包却没进&quot;的材料与原因。缺材料比缺报告隐蔽：评审者拿到包</span></span><br><span class="line">	<span class="comment">// 才发现文件不在，已无从判断是审计没做还是打包丢了。</span></span><br><span class="line">	skipped []<span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img7.png"></p>
+<hr>
+<h2><span id="十二-现有产出展示">十二、现有产出展示</span></h2><p>目前就一个下编号了，其他的现在在等待三审&#x2F;验证。（产出后续会在评论区展示，但我会厚码˶&gt;ᗜ&lt;˶）</p>
+<p>实力不详，遇强（AI模型）则强（项目产出效果）：</p>
+<p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img8.png"></p>
+<hr>
+<h2><span id="十三-购买入口白帽集市">十三、购买入口（白帽集市）</span></h2><p><img src="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/img9.png"></p>
+<blockquote>
+<p><strong>FirmAudit2 · 固件漏洞审计平台</strong></p>
+<ul>
+<li><strong>【价格】</strong> ￥50（中秋 + 首发公测价）</li>
+<li><strong>【授权方式】</strong> 单设备永久授权</li>
+<li><strong>【库存数量】</strong> 20</li>
+<li><strong>【售后与更新】</strong> 版本更新：保持迭代推送；答疑渠道：微信群聊</li>
+<li><strong>【购买入口】</strong> 白帽集市搜索「FirmAudit2」，或直接扫描上方二维码 &#x2F; 点击阅读原文</li>
+<li><strong>【前置环境】</strong>：Windows 11 x64、已启用 WSL2、磁盘建议 ≥ 40GB 可用、首次部署工具链需联网。大模型 API 需自备，平台不内置任何模型额度。</li>
+</ul>
+</blockquote>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E6%BC%8F%E6%B4%9E/" title="漏洞" data-aos="zoom-in">漏洞</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/AI/" rel="tag" title="AI">AI</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E5%AE%A1%E8%AE%A1/" rel="tag" title="固件审计">固件审计</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="https://img.8845.top/img2/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F%20%E4%B8%AD%E7%A7%8B%204k.jpg" data-sizes="auto" alt="PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案" class="lazyload">
+        <a href="/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/" aria-label="前一篇: PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案" title="前一篇: PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+            PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://img.8845.top/img2/%E3%80%8ARe%EF%BC%9A%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%BC%82%E4%B8%96%E7%95%8C%E7%94%9F%E6%B4%BB%E3%80%8B%E9%9B%B7%E5%A7%864k.jpg" data-sizes="auto" alt="YiFang CMS ≤ 2.0.5: SQL Identifier Injection in L_Admin_article::removeBackslashes() (Authenticated, Full Database Takeover)" class="lazyload">
+      <a href="/2026/09/19/YiFang-CMS-2.0.5-SQL-Identifier-Injection-in-L_Admin_article-removeBackslashes-Authenticated-Full-Database-Takeover/" aria-label="后一篇: YiFang CMS ≤ 2.0.5: SQL Identifier Injection in L_Admin_article::removeBackslashes() (Authenticated, Full Database Takeover)"  title="后一篇: YiFang CMS ≤ 2.0.5: SQL Identifier Injection in L_Admin_article::removeBackslashes() (Authenticated, Full Database Takeover)"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          YiFang CMS ≤ 2.0.5: SQL Identifier Injection in L_Admin_article::removeBackslashes() (Authenticated, Full Database Takeover)
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+  <section id="comments" data-aos="fade-up">
+    <div class="comment-header">
+        
+      <h2 class="comment-title">说些什么吧！</h2>
+      <div class="comment-selector">
+        <div class="comment-selector-wrap">
+            <div class="selector-item" data-selector="gitalk">
+              <span>gitalk</span>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="comment-content">
+          <div class="comment gitalk-comment" data-aos="fade-up"
+            id="gitalk-comment">
+          </div>
+    </div>
+  </section>
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        21.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:43
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一、项目出发背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">二、系统总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">能力概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">工作流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">三、过程约束：分段引导与校验回环</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">为什么要有它</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">打回是下一句提示词的开头</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.3.</span> <span class="toc-text">一次只推进一个漏洞，投递还要对账</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.4.</span> <span class="toc-text">效果对比（由AI对本地任务数据的情况统计）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">四、结果门之一：收口门——状态判定的前置条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">五、结果门之二：本地仿真验证硬门——证据只认运行时输出</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">动机来自一份看起来很好的资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">六、结果门之三：资产证明门——版本信息必须在头两步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">七、结果门之四：报告复核门，以及对”事后回改”的重开</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">7.1.</span> <span class="toc-text">过了门也不是一劳永逸</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">八、运行时约束：给”一次工具调用”上计时器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">九、环境约束：会话级 overlay 临时根</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">十、把约束写进提示词，再用回归测试锁住</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">十一、交付形态：自包含平铺总包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">12.</span> <span class="toc-text">十二、现有产出展示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">13.</span> <span class="toc-text">十三、购买入口（白帽集市）</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">14</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">9</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线",
+          url: "https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/",
+          excerpt: "",
+          description: "",
+          stripContent: " 一、项目出发背景做固件审计的师傅大概都被这几件事磨过：  工具不缺，binwalk、FirmAE、radare2、QEMU 都在，可它们之间那段路全靠人肉走； 让大模型去跑命令，我心里发虚——它一句 apt install 就能把我环境搞乱； 它说”这里有个命令注入”，自己复现利用失败，转头追问AI，AI：是我的错误…； 真挖到了洞，后面还得手抄复现步骤、整理证据、套 CNVD 模板，一晚上又没了。  所以有了 FirmAudit2：让Agent去查，同时把”结论可信”这件事本身变成一个工程问",
+          date: "Thu Sep 24 2026 16:30:00 GMT+0800",
+          updated: "Thu Sep 24 2026 16:41:57 GMT+0800",
+          cover: "https://img.8845.top/img2/%E3%80%8ARe%EF%BC%9A%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%BC%82%E4%B8%96%E7%95%8C%E7%94%9F%E6%B4%BB%E3%80%8B%E7%88%B1%E8%9C%9C%E8%8E%89%E9%9B%85%E5%8A%A8%28.png",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+<script data-pjax>
+  var loadScript = (src, integrity) => {
+    const script = document.createElement('script');
+    script.src = src;
+    if (integrity) script.integrity = integrity;
+    script.crossOrigin = 'anonymous';
+    return script;
+  };
+
+  var commentConfigKeys = ["gitalk"];
+  var commentConfig = {
+    gitalk: {
+      enable: true,
+      load: () => {
+        const container = document.querySelector('.gitalk-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.min.js',
+          'sha384-kspnZUWBoSWwoJHa0hBCXYbHGbhvU/lcEH5O8eVbSDhbPwsiVUTp/aGX/z/5EuMA'
+        );
+
+        script.onload = () => {
+            initGitalk();
+        }
+        document.head.appendChild(script);
+
+        function initGitalk() {
+          var gitalkId = location.pathname;
+          var gitalk = new Gitalk({
+            clientID: 'Ov23liKvGhx1da2qgEDL',
+            clientSecret: '67ac978699f8e6cbcad70bca3e05b47ee7042f41',
+            repo: 'jiuzero.github.io',
+            owner: 'jiuzero',
+            admin: ["jiuzero"],
+            id: gitalkId,
+            distractionFreeMode: false,
+            language: document.documentElement.lang || 'en',
+          })
+          gitalk.render('gitalk-comment');
+        }
+      }
+    },
+  }
+  commentConfig.enable = commentConfigKeys.some(key => commentConfig[key].enable);
+
+  var defaultComment = '';
+  if (commentConfig.enable) {
+    // 1. 首先检查localStorage中是否有保存的评论类型
+    var savedCommentType = localStorage.getItem('commentType');
+    
+    // 2. 如果localStorage中有值且对应的评论系统可用，就使用它
+    if (savedCommentType) {
+      if (commentConfig[savedCommentType]?.enable) {
+        defaultComment = savedCommentType;
+      }
+    }
+    
+    // 3. 如果localStorage无效，检查配置的默认评论系统
+    if (!defaultComment) {
+      var configDefault = 'waline';
+      if (commentConfig[configDefault]?.enable) {
+        defaultComment = configDefault;
+      }
+    }
+    
+    // 4. 如果前两项都无效，按指定顺序找到第一个可用的评论系统
+    if (!defaultComment) {
+      defaultComment = commentConfigKeys.find(sys => commentConfig[sys].enable) || '';
+    }
+  }
+  function loadComments() {
+    if (!commentConfig.enable) return;
+    const loadedComments = {
+      valine: false,
+      waline: false,
+      twikoo: false,
+      gitalk: false,
+      giscus: false,
+      utterances: false,
+      beaudar: false,
+      disqus: false,
+    };
+
+    // 隐藏所有评论容器
+    const hideAllComments = () => {
+      const commentContainers = document.querySelectorAll('.comment');
+      commentContainers.forEach(container => {
+        container.style.display = 'none';
+      });
+    };
+
+    // 按需加载评论系统
+    const loadCommentSystem = (type) => {
+      if (loadedComments[type]) {
+        // 如果已加载，只需显示对应容器
+        document.querySelector(`.${type}-comment`).style.display = 'block';
+        return;
+      }
+
+      // 根据类型加载对应的脚本
+      commentConfig[type]?.load();
+      loadedComments[type] = true;
+    };
+
+    // 评论组件选择器
+    const changeActiveCommentItems = (item) => {
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let i = 0; i < commentItems.length; i++) {
+        commentItems[i].classList.remove('active');
+      }
+      item.classList.add('active');
+
+      // 获取要加载的评论系统类型
+      const commentType = item.getAttribute('data-selector');
+
+      // 隐藏所有评论系统
+      hideAllComments();
+
+      // 加载选中的评论系统
+      loadCommentSystem(commentType);
+    };
+
+    const commentInit = () => {
+      // 评论组件选择器点击事件
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let item of commentItems) {
+        item.addEventListener('click', () => {
+          // 保存选择器状态
+          const commentType = item.getAttribute('data-selector');
+          window.localStorage.setItem('commentType', commentType);
+          // 切换选中状态
+          changeActiveCommentItems(item);
+        });
+      }
+
+      // 检查是否需要加载默认评论系统
+      if (defaultComment) {
+        const defaultSelectorItem = document.querySelector(`[data-selector="${defaultComment}"]`);
+        if (!defaultSelectorItem) return;
+        defaultSelectorItem.style.display = 'block';
+        defaultSelectorItem.classList.add('active');
+        loadCommentSystem(defaultComment);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', commentInit);
+    } else {
+      commentInit();
+    }
+  };
+  loadComments();
+</script>
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>

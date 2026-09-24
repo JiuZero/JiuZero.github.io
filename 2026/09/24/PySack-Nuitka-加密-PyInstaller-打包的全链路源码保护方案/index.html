@@ -1,0 +1,1036 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="起因需求： 加密 AetherAgent 项目代码 背景： Nuitka本地编译OOM，PyArmor有文件对象大小、函数数量etc限制，网上看到有项目jmpy，但项目年久失修.. 启发：Python打包EXE防破解实战：PyInstaller+Nuitka双保险配置指南 （项目开发全程由AI完成，我仅提供完善思路及优化需求） 概述PySack 是一个 Python 源码保护工具链，它将 Nuit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案">
+<meta property="og:url" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="起因需求： 加密 AetherAgent 项目代码 背景： Nuitka本地编译OOM，PyArmor有文件对象大小、函数数量etc限制，网上看到有项目jmpy，但项目年久失修.. 启发：Python打包EXE防破解实战：PyInstaller+Nuitka双保险配置指南 （项目开发全程由AI完成，我仅提供完善思路及优化需求） 概述PySack 是一个 Python 源码保护工具链，它将 Nuit">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img0.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img1.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img2.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img3.png">
+<meta property="article:published_time" content="2026-09-24T08:35:00.000Z">
+<meta property="article:modified_time" content="2026-09-24T08:41:58.120Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="打包">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img0.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      
+<link rel="stylesheet" href="https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.css" integrity="sha384-X7z7PUv2B67D8sPJyzDyGZSco1ADwmdI7ed4eCGtTKkClfyDFpPL9WgAn9XVr&#x2F;Io" crossorigin="anonymous">
+
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">加载中...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" aria-label="RSS 订阅" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">简体中文</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" class="selected" aria-selected="true">简体中文</li>
+            <li data-value="en" role="option" aria-selected="false">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2026/09/24/PySack-Nuitka-加密-PyInstaller-打包的全链路源码保护方案/';
+              langMap['en'] = '/en/2026/09/24/PySack-Nuitka-加密-PyInstaller-打包的全链路源码保护方案/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="https://img.8845.top/img2/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F%20%E4%B8%AD%E7%A7%8B%204k.jpg" alt="PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">一、核心架构：两阶段流水线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">阶段一：Nuitka 编译加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">阶段二：PyInstaller 打包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">二、自动依赖检测系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">检测流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.2.</span> <span class="toc-text">过滤策略详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.3.</span> <span class="toc-text">传递依赖补全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.4.</span> <span class="toc-text">精确导入模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">三、CLI 与配置系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">命令行接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">配置文件模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">四、使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">场景一：一键保护整个项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">场景二：两步分离（加密 + 打包独立执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.3.</span> <span class="toc-text">场景三：CI&#x2F;CD 自动化构建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">五、技术要点总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">六、结语</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">14</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">9</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-PySack-Nuitka-加密-PyInstaller-打包的全链路源码保护方案" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-09-24T08:35:00.000Z" itemprop="datePublished">2026-09-24</time>
+    <time style="display: none;" id="post-update-time">2026-09-24</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-09-24T08:41:58.120Z" itemprop="dateModified">2026-09-24</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <h2><span id="起因">起因</span></h2><p><strong>需求：</strong> 加密 <a target="_blank" rel="noopener" href="https://github.com/JiuZero/AetherAgent">AetherAgent</a> 项目代码</p>
+<p><strong>背景：</strong> Nuitka本地编译OOM，PyArmor有文件对象大小、函数数量etc限制，网上看到有项目jmpy，但项目年久失修..</p>
+<p><strong>启发：</strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_29323049/article/details/158710483">Python打包EXE防破解实战：PyInstaller+Nuitka双保险配置指南</a></p>
+<p>（项目开发全程由AI完成，我仅提供完善思路及优化需求）</p>
+<h2><span id="概述">概述</span></h2><p><strong>PySack</strong> 是一个 Python 源码保护工具链，它将 <strong>Nuitka</strong> 的编译加密能力与 <strong>PyInstaller</strong> 的打包分发能力串联为一条完整流水线。开发者执行一条命令，即可将纯 Python 项目转换为加密的独立可执行文件。</p>
+<p><strong>仓库地址：</strong> <a target="_blank" rel="noopener" href="https://github.com/JiuZero/PySack">github.com&#x2F;JiuZero&#x2F;PySack</a></p>
+<p><strong>安装方式：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install --extra-index-url https://test.pypi.org/simple/ pysack</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img0.png"></p>
+<hr>
+<h2><span id="一-核心架构两阶段流水线">一、核心架构：两阶段流水线</span></h2><p>PySack 的工作流分为两个阶段，由 <code>start_full_workflow()</code> 函数编排：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">start_full_workflow</span>(<span class="params">input_file_path, output_file_path=<span class="literal">None</span>, ...</span>):</span><br><span class="line">    <span class="comment"># Step 1: Nuitka Encryption</span></span><br><span class="line">    encrypted_dir = start_encrypt(input_file_path, output_file_path, ...)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Step 2: PyInstaller Packaging</span></span><br><span class="line">    dist_dir = start_pyinstaller_pack(encrypted_dir, main_entry, ...)</span><br><span class="line">    <span class="keyword">return</span> dist_dir</span><br></pre></td></tr></table></figure>
+
+<h3><span id="阶段一nuitka-编译加密">阶段一：Nuitka 编译加密</span></h3><p><code>start_encrypt()</code> 执行以下子步骤：</p>
+<p><strong>1. 文件拷贝与过滤</strong></p>
+<p>将源码拷贝到输出目录，排除 <code>dist/</code>、<code>.git/</code>、<code>venv/</code>、<code>__pycache__/</code> 等目录：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">copy_files</span>(<span class="params">src_path, dst_path</span>):</span><br><span class="line">    <span class="keyword">if</span> os.path.isdir(src_path):</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">callable</span>(<span class="params">src, names</span>):</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">&quot;dist&quot;</span>, <span class="string">&quot;.git&quot;</span>, <span class="string">&quot;venv&quot;</span>, <span class="string">&quot;.idea&quot;</span>, <span class="string">&quot;__pycache__&quot;</span>]</span><br><span class="line">        shutil.copytree(src_path, dst_path, ignore=<span class="built_in">callable</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 智能文件筛选</strong></p>
+<p><code>filter_cannot_encrypted_py()</code> 负责过滤掉不适合加密的文件：</p>
+<ul>
+<li>跳过 <code>__init__.py</code>、<code>__main__.py</code> 等双下划线文件</li>
+<li>扫描文件内容，跳过包含 <code>if __name__ == &quot;__main__&quot;</code> 的入口文件</li>
+<li>支持 <code>force_encrypt_files</code> 白名单，强制加密特定文件</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">filter_cannot_encrypted_py</span>(<span class="params">files, except_main_file, force_encrypt_files=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">for</span> file <span class="keyword">in</span> files:</span><br><span class="line">        <span class="keyword">if</span> search(file, regexs=<span class="string">&quot;__.*?.py&quot;</span>):</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">if</span> except_main_file <span class="keyword">and</span> os.path.basename(file) <span class="keyword">not</span> <span class="keyword">in</span> force_encrypt_basenames:</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                <span class="keyword">if</span> search(f.read(), regexs=<span class="string">&quot;__main__&quot;</span>):</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">        _files.append(file)</span><br><span class="line">    <span class="keyword">return</span> _files</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 逐文件 Nuitka 编译</strong></p>
+<p>对每个 .py 文件调用 <code>python -m nuitka --module</code>，生成对应的 .pyd（Windows）或 .so（Linux&#x2F;macOS）二进制文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">encrypt_py</span>(<span class="params">py_files</span>):</span><br><span class="line">    <span class="keyword">for</span> py_file <span class="keyword">in</span> py_files:</span><br><span class="line">        os.chdir(os.path.dirname(py_file))</span><br><span class="line">        result = subprocess.run(</span><br><span class="line">            [<span class="string">&quot;python&quot;</span>, <span class="string">&quot;-m&quot;</span>, <span class="string">&quot;nuitka&quot;</span>, <span class="string">&quot;--module&quot;</span>, file_name],</span><br><span class="line">            capture_output=<span class="literal">True</span>, text=<span class="literal">True</span>, timeout=<span class="number">600</span>,</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">if</span> result.returncode != <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(result.stderr[-<span class="number">1000</span>:])</span><br><span class="line">        encrypted_py.append(py_file)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 平台标签清理</strong></p>
+<p>Nuitka 生成的 .pyd 文件名包含平台标签（如 <code>module.cp314-win_amd64.pyd</code>），需重命名为 <code>module.pyd</code> 才能正常导入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">rename_excrypted_file</span>(<span class="params">output_file_path</span>):</span><br><span class="line">    <span class="keyword">for</span> file <span class="keyword">in</span> walk_file(output_file_path):</span><br><span class="line">        <span class="keyword">if</span> file.endswith(<span class="string">&quot;.pyd&quot;</span>) <span class="keyword">or</span> file.endswith(<span class="string">&quot;.so&quot;</span>):</span><br><span class="line">            new_filename = re.sub(<span class="string">r&quot;(.*)\..*\.(.*)&quot;</span>, <span class="string">r&quot;\1.\2&quot;</span>, file)</span><br><span class="line">            <span class="keyword">if</span> new_filename != file:</span><br><span class="line">                os.rename(file, new_filename)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img1.png"></p>
+<h3><span id="阶段二pyinstaller-打包">阶段二：PyInstaller 打包</span></h3><p><code>start_pyinstaller_pack()</code> 将加密后的 .pyd 文件与运行时依赖打包为独立目录：</p>
+<p><strong>1. 输出名称自动推导</strong></p>
+<p>可执行文件输出名称默认取自入口文件名（如 <code>aether.py</code> → <code>aether.exe</code>），无需手动指定 <code>-n</code> 参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> dist_name <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    dist_name = os.path.splitext(os.path.basename(main_entry))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 入口文件自动检测</strong></p>
+<p>若未指定 <code>-m</code> 参数，PySack 会自动在加密目录中查找常见入口文件名：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> main_entry <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    candidates = [<span class="string">&quot;main.py&quot;</span>, <span class="string">&quot;app.py&quot;</span>, <span class="string">&quot;run.py&quot;</span>, <span class="string">&quot;aether.py&quot;</span>, <span class="string">&quot;cli.py&quot;</span>, <span class="string">&quot;server.py&quot;</span>]</span><br><span class="line">    <span class="keyword">for</span> candidate <span class="keyword">in</span> candidates:</span><br><span class="line">        <span class="keyword">if</span> os.path.exists(os.path.join(encrypted_dir, candidate)):</span><br><span class="line">            main_entry = candidate</span><br><span class="line">            <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 构建 PyInstaller 命令</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cmd = [sys.executable, <span class="string">&quot;-m&quot;</span>, <span class="string">&quot;PyInstaller&quot;</span>, <span class="string">&quot;--onedir&quot;</span>, <span class="string">&quot;--name&quot;</span>, dist_name]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 hidden-import（精确子模块路径）</span></span><br><span class="line"><span class="keyword">for</span> hi <span class="keyword">in</span> hidden_imports:</span><br><span class="line">    cmd.append(<span class="string">f&quot;--hidden-import=<span class="subst">&#123;hi&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">cmd.append(main_entry)</span><br></pre></td></tr></table></figure>
+
+<p>关键设计决策：</p>
+<ul>
+<li>使用 <code>sys.executable -m PyInstaller</code> 而非直接调用 <code>pyinstaller</code> 命令，确保 Nuitka 和 PyInstaller 使用同一 Python 解释器，避免 <code>.pyd</code> 文件的 DLL 版本冲突</li>
+<li><strong>不显式添加 <code>--add-binary</code> 和 <code>--add-data</code></strong>：PyInstaller 的 modulegraph 分析可通过入口文件的 import 链自动发现已编译的 <code>.pyd</code>&#x2F;<code>.so</code> 文件和 <code>__init__.py</code>。显式添加这些标志会使命令行在 Windows 上超过 8191 字符限制，导致 PyInstaller 静默失败</li>
+</ul>
+<p><strong>4. 清理构建产物</strong></p>
+<p>编译完成后清理 Nuitka 生成的 <code>.build/</code> 目录和 PyInstaller 的 <code>dist/</code>、<code>build/</code> 目录，只保留最终输出。</p>
+<hr>
+<h2><span id="二-自动依赖检测系统">二、自动依赖检测系统</span></h2><p>这是 PySack 最具技术价值的设计。Nuitka 编译后会在每个模块旁生成 <code>.pyi</code> 存根文件，其中包含该模块的 import 语句。PySack 利用这些文件逆向推导第三方依赖关系。</p>
+<h3><span id="检测流程">检测流程</span></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">auto_detect_dependencies</span>(<span class="params">encrypted_dir</span>):</span><br><span class="line">    <span class="comment"># 1. 收集所有 .pyi 文件</span></span><br><span class="line">    pyi_files = find_pyi_files(encrypted_dir)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2. 解析每个 .pyi 中的 import 语句</span></span><br><span class="line">    <span class="keyword">for</span> pyi_file <span class="keyword">in</span> pyi_files:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> content.splitlines():</span><br><span class="line">            m = re.<span class="keyword">match</span>(<span class="string">r&quot;^(?:from\s+(\S+)\s+import|\s*import\s+(\S+))&quot;</span>, line)</span><br><span class="line">            module_name = m.group(<span class="number">1</span>) <span class="keyword">or</span> m.group(<span class="number">2</span>)</span><br><span class="line">            top_module = module_name.split(<span class="string">&quot;.&quot;</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 3. 多层过滤</span></span><br><span class="line">            <span class="comment"># 标准库 — 保留子模块（如 xml.dom），跳过顶层模块（如 os）</span></span><br><span class="line">            <span class="keyword">if</span> top_module <span class="keyword">in</span> stdlib_modules:</span><br><span class="line">                <span class="keyword">if</span> module_name == top_module:</span><br><span class="line">                    <span class="keyword">continue</span>  <span class="comment"># 跳过顶层标准库模块</span></span><br><span class="line">                all_third_party.add(module_name)  <span class="comment"># 保留子模块（如 xml.dom）</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># 项目内部模块 — 保留子模块（如 conf.i18n），跳过顶层包</span></span><br><span class="line">            <span class="keyword">if</span> module_name <span class="keyword">in</span> internal_modules:</span><br><span class="line">                all_third_party.add(module_name); <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> top_module <span class="keyword">in</span> internal_packages:</span><br><span class="line">                <span class="keyword">if</span> module_name == top_module: <span class="keyword">continue</span>  <span class="comment"># 跳过顶层包</span></span><br><span class="line">                all_third_party.add(module_name); <span class="keyword">continue</span>  <span class="comment"># 保留子模块</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> top_module.startswith(<span class="string">&quot;_&quot;</span>):  <span class="comment"># 过滤私有模块</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            all_third_party.add(module_name)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img2.png"></p>
+<h3><span id="过滤策略详解">过滤策略详解</span></h3><table>
+<thead>
+<tr>
+<th>过滤层</th>
+<th>依据</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标准库顶层</td>
+<td><code>sys.stdlib_module_names</code></td>
+<td>跳过（如 <code>os</code>、<code>sys</code>）</td>
+</tr>
+<tr>
+<td>标准库子模块</td>
+<td>顶层在 stdlib 中，但完整名不在</td>
+<td>保留为 hidden-import（如 <code>xml.dom</code>、<code>collections.abc</code>）</td>
+</tr>
+<tr>
+<td>内部模块</td>
+<td>.pyi&#x2F;.pyd 文件路径</td>
+<td>保留为 hidden-import（编译后为二进制，modulegraph 无法解析）</td>
+</tr>
+<tr>
+<td>内部包顶层</td>
+<td><code>__init__.py</code> 目录</td>
+<td>跳过（PyInstaller 可自动发现）</td>
+</tr>
+<tr>
+<td>内部包子模块</td>
+<td>顶层在 internal_packages 中</td>
+<td>保留为 hidden-import（如 <code>conf.i18n</code>、<code>core.executor</code>）</td>
+</tr>
+<tr>
+<td>私有模块</td>
+<td>以 <code>_</code> 开头</td>
+<td>跳过</td>
+</tr>
+</tbody></table>
+<p><strong>两类关键边界情况</strong>：</p>
+<ol>
+<li><p><strong>标准库子模块（如 <code>xml.dom</code>）</strong>：<code>sys.stdlib_module_names</code> 包含 <code>&quot;xml&quot;</code> 但不包含 <code>&quot;xml.dom&quot;</code>。若仅检查 <code>module_name in stdlib_modules</code>，<code>xml.dom</code> 会漏过过滤，导致 fallthrough 到 <code>all_third_party.add(&quot;xml&quot;)</code>（添加顶层而非子模块）。正确做法是检查 <code>top_module</code> 是否在 stdlib 中，再根据 <code>module_name == top_module</code> 区分顶层和子模块。</p>
+</li>
+<li><p><strong>内部包子模块（如 <code>conf.i18n</code>）</strong>：项目内部模块被 Nuitka 编译为 <code>.pyd</code>&#x2F;<code>.so</code> 后，PyInstaller 的 modulegraph 无法解析二进制文件中的 import。因此内部子模块必须显式添加为 <code>--hidden-import</code>，否则运行时抛出 <code>ModuleNotFoundError</code>。</p>
+</li>
+</ol>
+<h3><span id="传递依赖补全">传递依赖补全</span></h3><p>许多第三方库的依赖在 .pyi 中不可见（因为它们是在 C 扩展或运行时内部导入的）。PySack 内置了一份传递依赖映射表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">TRANSITIVE_DEPS = &#123;</span><br><span class="line">    <span class="string">&quot;sqlalchemy&quot;</span>: [<span class="string">&quot;aiosqlite&quot;</span>, <span class="string">&quot;greenlet&quot;</span>],</span><br><span class="line">    <span class="string">&quot;fastapi&quot;</span>: [<span class="string">&quot;python_multipart&quot;</span>],</span><br><span class="line">    <span class="string">&quot;uvicorn&quot;</span>: [<span class="string">&quot;httptools&quot;</span>, <span class="string">&quot;watchfiles&quot;</span>],</span><br><span class="line">    <span class="string">&quot;cryptography&quot;</span>: [<span class="string">&quot;cffi&quot;</span>],</span><br><span class="line">    <span class="string">&quot;sentence_transformers&quot;</span>: [<span class="string">&quot;transformers&quot;</span>, <span class="string">&quot;torch&quot;</span>, <span class="string">&quot;tokenizers&quot;</span>],</span><br><span class="line">    <span class="string">&quot;requests&quot;</span>: [<span class="string">&quot;urllib3&quot;</span>, <span class="string">&quot;idna&quot;</span>, <span class="string">&quot;charset_normalizer&quot;</span>, <span class="string">&quot;certifi&quot;</span>],</span><br><span class="line">    <span class="string">&quot;httpx&quot;</span>: [<span class="string">&quot;httpcore&quot;</span>, <span class="string">&quot;h11&quot;</span>, <span class="string">&quot;certifi&quot;</span>, <span class="string">&quot;sniffio&quot;</span>],</span><br><span class="line">    <span class="string">&quot;rich&quot;</span>: [<span class="string">&quot;markdown_it&quot;</span>, <span class="string">&quot;pygments&quot;</span>],</span><br><span class="line">    <span class="string">&quot;numpy&quot;</span>: [<span class="string">&quot;numpy._core._multiarray_umath&quot;</span>],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当检测到 <code>fastapi</code> 时，自动补充 <code>python_multipart</code>；检测到 <code>uvicorn</code> 时，补充 <code>httptools</code> 和 <code>watchfiles</code>。补全前会通过 <code>importlib.util.find_spec()</code> 验证模块实际存在，避免引入不存在的依赖。</p>
+<h3><span id="精确导入模式">精确导入模式</span></h3><p>v0.2.15 起，所有检测到的模块以<strong>精确子模块路径</strong>作为 <code>--hidden-import</code> 添加，不再使用 <code>--collect-submodules</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保留完整子模块路径</span></span><br><span class="line">all_third_party.add(<span class="string">&quot;sqlalchemy.orm&quot;</span>)      <span class="comment"># 而非 &quot;sqlalchemy&quot;</span></span><br><span class="line">all_third_party.add(<span class="string">&quot;sqlalchemy.ext.asyncio&quot;</span>)  <span class="comment"># 而非 &quot;sqlalchemy&quot;</span></span><br><span class="line">all_third_party.add(<span class="string">&quot;conf.i18n&quot;</span>)           <span class="comment"># 而非 &quot;conf&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>好处</strong>：PyInstaller 只导入实际用到的子模块，而非整个包。例如项目只用了 <code>sqlalchemy.orm</code>，不会将 <code>sqlalchemy.sql</code>、<code>sqlalchemy.engine</code> 等未使用的子模块打包进来，显著减小输出体积。</p>
+<hr>
+<h2><span id="三-cli-与配置系统">三、CLI 与配置系统</span></h2><h3><span id="命令行接口">命令行接口</span></h3><p>PySack 提供四种子命令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能</th>
+<th>典型用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>encrypt</code></td>
+<td>仅加密（默认）</td>
+<td><code>pysack encrypt -i project/ -o output/</code></td>
+</tr>
+<tr>
+<td><code>pack</code></td>
+<td>仅打包</td>
+<td><code>pysack pack -i encrypted_dir/ -m main.py</code></td>
+</tr>
+<tr>
+<td><code>full</code></td>
+<td>加密 + 打包</td>
+<td><code>pysack full -i project/</code></td>
+</tr>
+<tr>
+<td><code>build</code></td>
+<td>从配置文件执行</td>
+<td><code>pysack build</code>（自动读取 .pysack.cfg）</td>
+</tr>
+</tbody></table>
+<p><code>full</code> 和 <code>pack</code> 子命令的 <code>-n</code> 参数为可选，默认输出名称取自入口文件名。<code>-m</code> 参数同样可选，PySack 会自动检测常见入口文件名。</p>
+<h3><span id="配置文件模式">配置文件模式</span></h3><p>对于重复构建场景，PySack 支持 <code>.pysack.cfg</code> 配置文件：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[pysack]</span></span><br><span class="line"><span class="attr">paths</span> = src/</span><br><span class="line"><span class="attr">build_dir</span> = encrypted_output</span><br><span class="line"><span class="attr">ignores</span> = setup.py</span><br><span class="line"><span class="attr">force_encrypt_files</span> = client.py, tool_manager.py</span><br><span class="line"><span class="attr">except_main_file</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="section">[pyinstaller]</span></span><br><span class="line"><span class="attr">main_entry</span> = main.py</span><br><span class="line"><span class="attr">dist_name</span> = MyApp</span><br><span class="line"><span class="attr">hidden_imports</span> = httptools, watchfiles, psutil</span><br></pre></td></tr></table></figure>
+
+<p><code>load_config()</code> 函数使用 <code>configparser</code> 解析配置，无缝映射到 <code>start_full_workflow()</code> 的参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load_config</span>(<span class="params">config_path</span>):</span><br><span class="line">    config = configparser.ConfigParser()</span><br><span class="line">    config.read(config_path)</span><br><span class="line">    params = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;pysack&#x27;</span> <span class="keyword">in</span> config:</span><br><span class="line">        params[<span class="string">&#x27;input_file_path&#x27;</span>] = config[<span class="string">&#x27;pysack&#x27;</span>].get(<span class="string">&#x27;paths&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">        params[<span class="string">&#x27;ignore_files&#x27;</span>] = config[<span class="string">&#x27;pysack&#x27;</span>].get(<span class="string">&#x27;ignores&#x27;</span>, <span class="string">&#x27;&#x27;</span>).split(<span class="string">&#x27;,&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;pyinstaller&#x27;</span> <span class="keyword">in</span> config:</span><br><span class="line">        params[<span class="string">&#x27;hidden_imports&#x27;</span>] = [m.strip() <span class="keyword">for</span> m <span class="keyword">in</span> config[<span class="string">&#x27;pyinstaller&#x27;</span>].get(<span class="string">&#x27;hidden_imports&#x27;</span>, <span class="string">&#x27;&#x27;</span>).split(<span class="string">&#x27;,&#x27;</span>) <span class="keyword">if</span> m.strip()]</span><br><span class="line">    <span class="keyword">return</span> params</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="四-使用场景">四、使用场景</span></h2><h3><span id="场景一一键保护整个项目">场景一：一键保护整个项目</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -n 可选，默认输出名称为入口文件名</span></span><br><span class="line">pysack full -i ./my_project -m app.py</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/img3.png"></p>
+<h3><span id="场景二两步分离加密-打包独立执行">场景二：两步分离（加密 + 打包独立执行）</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先加密</span></span><br><span class="line">pysack encrypt -i ./my_project -o ./encrypted</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动检查加密结果后，再打包</span></span><br><span class="line">pysack pack -i ./encrypted -m app.py</span><br></pre></td></tr></table></figure>
+
+<h3><span id="场景三cix2fcd-自动化构建">场景三：CI&#x2F;CD 自动化构建</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在项目目录中放置 .pysack.cfg 配置文件</span></span><br><span class="line">pysack build</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="五-技术要点总结">五、技术要点总结</span></h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>实现方式</th>
+<th>关键代码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编译加密</td>
+<td>Nuitka <code>--module</code> 模式</td>
+<td><code>subprocess.run([&quot;python&quot;, &quot;-m&quot;, &quot;nuitka&quot;, &quot;--module&quot;, file])</code></td>
+</tr>
+<tr>
+<td>依赖检测</td>
+<td>.pyi 文件逆向解析 + 正则匹配 import</td>
+<td><code>re.match(r&quot;^(?:from\s+(\S+)\s+import|\s*import\s+(\S+))&quot;, line)</code></td>
+</tr>
+<tr>
+<td>标准库子模块</td>
+<td>检查 <code>top_module in stdlib_modules</code> 而非 <code>module_name in stdlib_modules</code></td>
+<td><code>if top_module in stdlib_modules and module_name != top_module: all_third_party.add(module_name)</code></td>
+</tr>
+<tr>
+<td>内部子模块</td>
+<td>遍历 .pyi&#x2F;.pyd 文件路径 + <code>__init__.py</code> 目录构建 internal 集合</td>
+<td><code>internal_packages.add(rel.replace(os.sep, &quot;.&quot;))</code> + 子模块保留为 hidden-import</td>
+</tr>
+<tr>
+<td>精确导入</td>
+<td>保留完整子模块路径，替代 <code>--collect-submodules</code></td>
+<td>使用 <code>sqlalchemy.orm</code> 而非 <code>sqlalchemy</code> 作为 <code>--hidden-import</code></td>
+</tr>
+<tr>
+<td>传递依赖</td>
+<td>预定义映射表 + <code>importlib.util.find_spec()</code> 验证</td>
+<td><code>TRANSITIVE_DEPS</code> 字典 + <code>find_spec(dep)</code></td>
+</tr>
+<tr>
+<td>平台兼容</td>
+<td>重命名 .pyd&#x2F;.so 文件，去除平台标签</td>
+<td><code>re.sub(r&quot;(.*)\..*\.(.*)&quot;, r&quot;\1.\2&quot;, file)</code></td>
+</tr>
+<tr>
+<td>命令行长度</td>
+<td>避免冗余 <code>--add-binary</code>&#x2F;<code>--add-data</code>，依赖 modulegraph 自动发现</td>
+<td>利用 PyInstaller 的 import 链分析，替代显式文件添加</td>
+</tr>
+<tr>
+<td>输出命名</td>
+<td>默认使用入口文件名作为输出名称</td>
+<td><code>os.path.splitext(os.path.basename(main_entry))[0]</code></td>
+</tr>
+<tr>
+<td>配置管理</td>
+<td>configparser 解析 .pysack.cfg</td>
+<td><code>configparser.ConfigParser().read(config_path)</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2><span id="六-结语">六、结语</span></h2><p>PySack 解决了一个现实痛点：Python 项目最高效且免费的源码保护。</p>
+<p>Nuitka 提供了编译级别的加密强度，PyInstaller 提供了分发级别的打包便利，而 PySack 填补了二者之间的集成空白——尤其是自动依赖检测和传递依赖补全，消除了手动维护 <code>--hidden-import</code> 列表的繁琐工作。</p>
+<p>在实际开发中，PySack 经过多次迭代解决了一系列工程问题：标准库子模块（<code>xml.dom</code>）的正确过滤、内部包子模块（<code>conf.i18n</code>）的 hidden-import 保留、Windows 命令行长度限制的规避、跨平台 <code>.pyd</code>&#x2F;<code>.so</code> 文件处理等。这些细节确保了从源码到可执行文件的自动化流水线稳定可靠。</p>
+<p>对于追求源码安全同时又不想放弃 Python 开发效率的团队，PySack 提供了一条简洁的自动化路径。</p>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E6%BC%8F%E6%B4%9E/" title="漏洞" data-aos="zoom-in">漏洞</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Python/" rel="tag" title="Python">Python</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%89%93%E5%8C%85/" rel="tag" title="打包">打包</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://img.8845.top/img2/%E3%80%8ARe%EF%BC%9A%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%BC%82%E4%B8%96%E7%95%8C%E7%94%9F%E6%B4%BB%E3%80%8B%E7%88%B1%E8%9C%9C%E8%8E%89%E9%9B%85%E5%8A%A8%28.png" data-sizes="auto" alt="FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线" class="lazyload">
+      <a href="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/" aria-label="后一篇: FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线"  title="后一篇: FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+  <section id="comments" data-aos="fade-up">
+    <div class="comment-header">
+        
+      <h2 class="comment-title">说些什么吧！</h2>
+      <div class="comment-selector">
+        <div class="comment-selector-wrap">
+            <div class="selector-item" data-selector="gitalk">
+              <span>gitalk</span>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="comment-content">
+          <div class="comment gitalk-comment" data-aos="fade-up"
+            id="gitalk-comment">
+          </div>
+    </div>
+  </section>
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        21.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:43
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">一、核心架构：两阶段流水线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">阶段一：Nuitka 编译加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">阶段二：PyInstaller 打包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">二、自动依赖检测系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">检测流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.2.</span> <span class="toc-text">过滤策略详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.3.</span> <span class="toc-text">传递依赖补全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.4.</span> <span class="toc-text">精确导入模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">三、CLI 与配置系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text">命令行接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.2.</span> <span class="toc-text">配置文件模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">四、使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">场景一：一键保护整个项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">场景二：两步分离（加密 + 打包独立执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.3.</span> <span class="toc-text">场景三：CI&#x2F;CD 自动化构建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">五、技术要点总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">六、结语</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">14</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">9</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案",
+          url: "https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/",
+          excerpt: "",
+          description: "",
+          stripContent: "起因需求： 加密 AetherAgent 项目代码 背景： Nuitka本地编译OOM，PyArmor有文件对象大小、函数数量etc限制，网上看到有项目jmpy，但项目年久失修.. 启发：Python打包EXE防破解实战：PyInstaller+Nuitka双保险配置指南 （项目开发全程由AI完成，我仅提供完善思路及优化需求） 概述PySack 是一个 Python 源码保护工具链，它将 Nuitka 的编译加密能力与 PyInstaller 的打包分发能力串联为一条完整流水线。开发者执行一条命",
+          date: "Thu Sep 24 2026 16:35:00 GMT+0800",
+          updated: "Thu Sep 24 2026 16:41:58 GMT+0800",
+          cover: "https://img.8845.top/img2/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F%20%E4%B8%AD%E7%A7%8B%204k.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+<script data-pjax>
+  var loadScript = (src, integrity) => {
+    const script = document.createElement('script');
+    script.src = src;
+    if (integrity) script.integrity = integrity;
+    script.crossOrigin = 'anonymous';
+    return script;
+  };
+
+  var commentConfigKeys = ["gitalk"];
+  var commentConfig = {
+    gitalk: {
+      enable: true,
+      load: () => {
+        const container = document.querySelector('.gitalk-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.min.js',
+          'sha384-kspnZUWBoSWwoJHa0hBCXYbHGbhvU/lcEH5O8eVbSDhbPwsiVUTp/aGX/z/5EuMA'
+        );
+
+        script.onload = () => {
+            initGitalk();
+        }
+        document.head.appendChild(script);
+
+        function initGitalk() {
+          var gitalkId = location.pathname;
+          var gitalk = new Gitalk({
+            clientID: 'Ov23liKvGhx1da2qgEDL',
+            clientSecret: '67ac978699f8e6cbcad70bca3e05b47ee7042f41',
+            repo: 'jiuzero.github.io',
+            owner: 'jiuzero',
+            admin: ["jiuzero"],
+            id: gitalkId,
+            distractionFreeMode: false,
+            language: document.documentElement.lang || 'en',
+          })
+          gitalk.render('gitalk-comment');
+        }
+      }
+    },
+  }
+  commentConfig.enable = commentConfigKeys.some(key => commentConfig[key].enable);
+
+  var defaultComment = '';
+  if (commentConfig.enable) {
+    // 1. 首先检查localStorage中是否有保存的评论类型
+    var savedCommentType = localStorage.getItem('commentType');
+    
+    // 2. 如果localStorage中有值且对应的评论系统可用，就使用它
+    if (savedCommentType) {
+      if (commentConfig[savedCommentType]?.enable) {
+        defaultComment = savedCommentType;
+      }
+    }
+    
+    // 3. 如果localStorage无效，检查配置的默认评论系统
+    if (!defaultComment) {
+      var configDefault = 'waline';
+      if (commentConfig[configDefault]?.enable) {
+        defaultComment = configDefault;
+      }
+    }
+    
+    // 4. 如果前两项都无效，按指定顺序找到第一个可用的评论系统
+    if (!defaultComment) {
+      defaultComment = commentConfigKeys.find(sys => commentConfig[sys].enable) || '';
+    }
+  }
+  function loadComments() {
+    if (!commentConfig.enable) return;
+    const loadedComments = {
+      valine: false,
+      waline: false,
+      twikoo: false,
+      gitalk: false,
+      giscus: false,
+      utterances: false,
+      beaudar: false,
+      disqus: false,
+    };
+
+    // 隐藏所有评论容器
+    const hideAllComments = () => {
+      const commentContainers = document.querySelectorAll('.comment');
+      commentContainers.forEach(container => {
+        container.style.display = 'none';
+      });
+    };
+
+    // 按需加载评论系统
+    const loadCommentSystem = (type) => {
+      if (loadedComments[type]) {
+        // 如果已加载，只需显示对应容器
+        document.querySelector(`.${type}-comment`).style.display = 'block';
+        return;
+      }
+
+      // 根据类型加载对应的脚本
+      commentConfig[type]?.load();
+      loadedComments[type] = true;
+    };
+
+    // 评论组件选择器
+    const changeActiveCommentItems = (item) => {
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let i = 0; i < commentItems.length; i++) {
+        commentItems[i].classList.remove('active');
+      }
+      item.classList.add('active');
+
+      // 获取要加载的评论系统类型
+      const commentType = item.getAttribute('data-selector');
+
+      // 隐藏所有评论系统
+      hideAllComments();
+
+      // 加载选中的评论系统
+      loadCommentSystem(commentType);
+    };
+
+    const commentInit = () => {
+      // 评论组件选择器点击事件
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let item of commentItems) {
+        item.addEventListener('click', () => {
+          // 保存选择器状态
+          const commentType = item.getAttribute('data-selector');
+          window.localStorage.setItem('commentType', commentType);
+          // 切换选中状态
+          changeActiveCommentItems(item);
+        });
+      }
+
+      // 检查是否需要加载默认评论系统
+      if (defaultComment) {
+        const defaultSelectorItem = document.querySelector(`[data-selector="${defaultComment}"]`);
+        if (!defaultSelectorItem) return;
+        defaultSelectorItem.style.display = 'block';
+        defaultSelectorItem.classList.add('active');
+        loadCommentSystem(defaultComment);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', commentInit);
+    } else {
+      commentInit();
+    }
+  };
+  loadComments();
+</script>
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>
