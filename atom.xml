@@ -11,54 +11,19 @@
   <rights>All rights reserved 2026, JiuZero</rights>
   <subtitle>Sun for morning, Moon for night, and you forever.</subtitle>
   <title>JiuZero's Blog</title>
-  <updated>2026-09-24T08:41:58.120Z</updated>
+  <updated>2026-11-05T18:10:56.803Z</updated>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
-    <category term="Python" scheme="https://jiuzero.github.io/tags/Python/"/>
-    <category term="打包" scheme="https://jiuzero.github.io/tags/%E6%89%93%E5%8C%85/"/>
-    <id>https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/</id>
-    <link href="https://jiuzero.github.io/2026/09/24/PySack-Nuitka-%E5%8A%A0%E5%AF%86-PyInstaller-%E6%89%93%E5%8C%85%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%BA%90%E7%A0%81%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%A1%88/"/>
-    <published>2026-09-24T08:35:00.000Z</published>
-    <summary>
-      <![CDATA[<h2><span id="起因">起因</span></h2><p><strong>需求：</strong> 加密 <a href="https://github.com/JiuZero/AetherAgent">AetherAgent</a>]]>
-    </summary>
-    <title>PySack Nuitka 加密 + PyInstaller 打包的全链路源码保护方案</title>
-    <updated>2026-09-24T08:41:58.120Z</updated>
-  </entry>
-  <entry>
-    <author>
-      <name>JiuZero</name>
-    </author>
-    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
-    <category term="固件审计" scheme="https://jiuzero.github.io/tags/%E5%9B%BA%E4%BB%B6%E5%AE%A1%E8%AE%A1/"/>
-    <category term="AI" scheme="https://jiuzero.github.io/tags/AI/"/>
-    <id>https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/</id>
-    <link href="https://jiuzero.github.io/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/"/>
-    <published>2026-09-24T08:30:00.000Z</published>
-    <summary>
-      <![CDATA[<hr>
-<h2><span id="一-项目出发背景">一、项目出发背景</span></h2><p>做固件审计的师傅大概都被这几件事磨过：</p>
-<ul>
-<li>工具不缺，binwalk、FirmAE、radare2、QEMU]]>
-    </summary>
-    <title>FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线</title>
-    <updated>2026-09-24T08:41:57.812Z</updated>
-  </entry>
-  <entry>
-    <author>
-      <name>JiuZero</name>
-    </author>
-    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
-    <category term="sqli" scheme="https://jiuzero.github.io/tags/sqli/"/>
-    <id>https://jiuzero.github.io/2026/09/19/YiFang-CMS-2.0.5-SQL-Identifier-Injection-in-L_Admin_article-removeBackslashes-Authenticated-Full-Database-Takeover/</id>
-    <link href="https://jiuzero.github.io/2026/09/19/YiFang-CMS-2.0.5-SQL-Identifier-Injection-in-L_Admin_article-removeBackslashes-Authenticated-Full-Database-Takeover/"/>
-    <published>2026-09-19T15:55:00.000Z</published>
+    <category term="hardcoded-credentials" scheme="https://jiuzero.github.io/tags/hardcoded-credentials/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-etc-passwd-Hardcoded-Root-Weak-Password-Unauth-Root-Access/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-etc-passwd-Hardcoded-Root-Weak-Password-Unauth-Root-Access/"/>
+    <published>2026-11-05T07:09:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>YiFang CMS ≤ 2.0.5: SQL Identifier Injection in L_Admin_article::removeBackslashes() (Authenticated, Full Database Takeover)</title>
-    <updated>2026-09-19T16:22:26.954Z</updated>
+    <title>Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)</title>
+    <updated>2026-11-05T18:10:56.803Z</updated>
   </entry>
   <entry>
     <author>
@@ -66,12 +31,12 @@
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
     <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/09/19/Tenda-W18E-V2.0-httpd-Unauthenticated-OS-Command-Injection-in-the-Packet-Capture-Diagnostic-Feature-Root-RCE/</id>
-    <link href="https://jiuzero.github.io/2026/09/19/Tenda-W18E-V2.0-httpd-Unauthenticated-OS-Command-Injection-in-the-Packet-Capture-Diagnostic-Feature-Root-RCE/"/>
-    <published>2026-09-19T15:50:00.000Z</published>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-wagent-Quote-Wrapping-Command-Injection-Unauth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-wagent-Quote-Wrapping-Command-Injection-Unauth-Root-RCE/"/>
+    <published>2026-11-05T07:08:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>Tenda W18E V2.0 httpd: Unauthenticated OS Command Injection in the Packet-Capture Diagnostic Feature (Root RCE)</title>
-    <updated>2026-09-19T16:22:26.949Z</updated>
+    <title>Tenda CP6 V11.10.00.243: wagent CGI Quote-Wrapping Command Injection (Unauthenticated, Root RCE)</title>
+    <updated>2026-11-05T18:10:27.104Z</updated>
   </entry>
   <entry>
     <author>
@@ -79,12 +44,12 @@
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
     <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/09/19/Tenda-CP3-V3.0-noodles-Daemon-Unauthenticated-File-Download-and-Execute-Backdoor-on-TCP1300-Root-RCE/</id>
-    <link href="https://jiuzero.github.io/2026/09/19/Tenda-CP3-V3.0-noodles-Daemon-Unauthenticated-File-Download-and-Execute-Backdoor-on-TCP1300-Root-RCE/"/>
-    <published>2026-09-19T15:45:00.000Z</published>
+    <id>https://jiuzero.github.io/2026/11/05/Xiaomi-MiWiFi-R4C-2.30.19-macfilterctl-setRule-mac-Field-iptables-Command-Injection-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Xiaomi-MiWiFi-R4C-2.30.19-macfilterctl-setRule-mac-Field-iptables-Command-Injection-Root-RCE/"/>
+    <published>2026-11-05T07:07:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>Tenda CP3 V3.0 noodles Daemon: Unauthenticated File Download-and-Execute Backdoor on TCP/1300 (Root RCE)</title>
-    <updated>2026-09-19T16:21:43.775Z</updated>
+    <title>Xiaomi MiWiFi R4C 2.30.19: macfilterctl setRule mac Field iptables Command Injection (MAC Whitelist Bypass Prerequisite, Root RCE)</title>
+    <updated>2026-11-05T18:09:00.261Z</updated>
   </entry>
   <entry>
     <author>
@@ -92,14 +57,12 @@
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
     <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/07/04/DedeCMS-sys-sql-query-php-Prepared-Statement-Bypass-for-WebShell-Writing-Remote-Code-Execution-Vulnerability-Audit-Report/</id>
-    <link href="https://jiuzero.github.io/2026/07/04/DedeCMS-sys-sql-query-php-Prepared-Statement-Bypass-for-WebShell-Writing-Remote-Code-Execution-Vulnerability-Audit-Report/"/>
-    <published>2026-07-04T08:00:15.000Z</published>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-getsnapshot.cgi-Command-Injection-Unauth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-CP6-V11.10.00.243-getsnapshot.cgi-Command-Injection-Unauth-Root-RCE/"/>
+    <published>2026-11-05T07:06:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>
-      <![CDATA[DedeCMS sys_sql_query.php Prepared Statement Bypass for WebShell Writing & Remote Code Execution Vulnerability Audit Report]]>
-    </title>
-    <updated>2026-07-04T08:08:41.137Z</updated>
+    <title>Tenda CP6 V11.10.00.243: getsnapshot.cgi QUERY_STRING Command Injection (Unauthenticated, Root RCE)</title>
+    <updated>2026-11-05T18:08:18.510Z</updated>
   </entry>
   <entry>
     <author>
@@ -107,14 +70,25 @@
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
     <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/07/04/DedeCMS-sys-sql-query-php-Slow-Query-Log-WebShell-Writing-Remote-Code-Execution-Vulnerability-Audit-Report/</id>
-    <link href="https://jiuzero.github.io/2026/07/04/DedeCMS-sys-sql-query-php-Slow-Query-Log-WebShell-Writing-Remote-Code-Execution-Vulnerability-Audit-Report/"/>
-    <published>2026-07-04T07:29:25.000Z</published>
+    <id>https://jiuzero.github.io/2026/11/05/Xiaomi-MiWiFi-R4C-2.30.19-macfilterctl-MAC-Filter-Rule-Lua-Code-Injection-Auth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Xiaomi-MiWiFi-R4C-2.30.19-macfilterctl-MAC-Filter-Rule-Lua-Code-Injection-Auth-Root-RCE/"/>
+    <published>2026-11-05T07:05:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>
-      <![CDATA[DedeCMS sys_sql_query.php Slow Query Log WebShell Writing & Remote Code Execution Vulnerability Audit Report]]>
-    </title>
-    <updated>2026-07-04T08:08:47.194Z</updated>
+    <title>Xiaomi MiWiFi R4C 2.30.19: macfilterctl MAC Filter Rule Lua Code Injection (Authenticated, Root RCE)</title>
+    <updated>2026-11-05T18:07:31.010Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="file-write" scheme="https://jiuzero.github.io/tags/file-write/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Alpine-Linux-minirootfs-3.24.0-x86-apk-tools-3.0.6-Directory-Symlink-Traversal-Arbitrary-File-Overwrite-Root-Escalation/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Alpine-Linux-minirootfs-3.24.0-x86-apk-tools-3.0.6-Directory-Symlink-Traversal-Arbitrary-File-Overwrite-Root-Escalation/"/>
+    <published>2026-11-05T07:04:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Alpine Linux minirootfs 3.24.0 x86: apk-tools 3.0.6 Directory Symlink Traversal Arbitrary File Overwrite (No Auth Required, Root Privilege Escalation and Persistence)</title>
+    <updated>2026-11-05T18:06:40.832Z</updated>
   </entry>
   <entry>
     <author>
@@ -122,112 +96,181 @@
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
     <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/07/04/DedeCMS-File-Manager-Regular-Expression-Bypass-Remote-Code-Execution-Vulnerability-Audit-Report/</id>
-    <link href="https://jiuzero.github.io/2026/07/04/DedeCMS-File-Manager-Regular-Expression-Bypass-Remote-Code-Execution-Vulnerability-Audit-Report/"/>
-    <published>2026-07-04T04:00:56.000Z</published>
+    <id>https://jiuzero.github.io/2026/11/05/TP-LINK-TL-FW5600E-1.11.2-usermngr.lua-add_user-username-Command-Injection-Auth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/TP-LINK-TL-FW5600E-1.11.2-usermngr.lua-add_user-username-Command-Injection-Auth-Root-RCE/"/>
+    <published>2026-11-05T07:03:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>DedeCMS File Manager Regular Expression Bypass Remote Code Execution Vulnerability Audit Report</title>
-    <updated>2026-07-04T08:09:05.728Z</updated>
+    <title>TP-LINK TL-FW5600E 1.11.2: usermngr.lua add_user username Parameter Command Injection (Authenticated, Root RCE)</title>
+    <updated>2026-11-05T18:05:45.828Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
     <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
-    <category term="sqli" scheme="https://jiuzero.github.io/tags/sqli/"/>
-    <id>https://jiuzero.github.io/2026/07/04/QCMS-tableField-Action-Backend-SQL-Injection-Vulnerability-White-box-Audit-Report/</id>
-    <link href="https://jiuzero.github.io/2026/07/04/QCMS-tableField-Action-Backend-SQL-Injection-Vulnerability-White-box-Audit-Report/"/>
-    <published>2026-07-04T02:47:40.000Z</published>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-TC3T14C-V25.4.26.15-Kylin-OnConfigNetwork-Command-Injection-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-TC3T14C-V25.4.26.15-Kylin-OnConfigNetwork-Command-Injection-Root-RCE/"/>
+    <published>2026-11-05T07:02:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>QCMS tableField_Action Backend SQL Injection Vulnerability White-box Audit Report</title>
-    <updated>2026-07-04T03:22:57.546Z</updated>
+    <title>Tenda TC3T14C V25.4.26.15: Kylin CNetApp::OnConfigNetwork Command Injection (Network Configuration Input, Root RCE)</title>
+    <updated>2026-11-05T18:04:53.828Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
-    <category term="其他" scheme="https://jiuzero.github.io/categories/%E5%85%B6%E4%BB%96/"/>
-    <category term="tools" scheme="https://jiuzero.github.io/tags/tools/"/>
-    <category term="z0scan" scheme="https://jiuzero.github.io/tags/z0scan/"/>
-    <id>https://jiuzero.github.io/2025/11/28/Z0Scan%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%8C%87%E7%BA%B9%E5%88%B0%E4%BA%8C%E7%BA%A7%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E7%9A%84%E5%AE%9E%E8%B7%B5/</id>
-    <link href="https://jiuzero.github.io/2025/11/28/Z0Scan%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%8C%87%E7%BA%B9%E5%88%B0%E4%BA%8C%E7%BA%A7%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E7%9A%84%E5%AE%9E%E8%B7%B5/"/>
-    <published>2025-11-27T16:00:00.000Z</published>
-    <summary>
-      <![CDATA[<blockquote>
-<p>星河虽存永夜，与你便是长明。</p>
-</blockquote>]]>
-    </summary>
-    <title>Z0Scan架构解析：从指纹到二级参数解析的实践</title>
-    <updated>2026-07-04T02:34:31.162Z</updated>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-TES7002-V4.0.0-boa-formImportOMCIShell-Script-Upload-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-TES7002-V4.0.0-boa-formImportOMCIShell-Script-Upload-Root-RCE/"/>
+    <published>2026-11-05T07:01:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda TES7002 V4.0.0: boa formImportOMCIShell Uploaded Script Execution (Unauthenticated Reachability Likely, Root RCE)</title>
+    <updated>2026-11-05T18:02:15.303Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
-    <category term="其他" scheme="https://jiuzero.github.io/categories/%E5%85%B6%E4%BB%96/"/>
-    <category term="tools" scheme="https://jiuzero.github.io/tags/tools/"/>
-    <category term="z0scan" scheme="https://jiuzero.github.io/tags/z0scan/"/>
-    <id>https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/</id>
-    <link href="https://jiuzero.github.io/2025/11/28/Z0Scan%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%9A%E7%94%A8%E6%8F%92%E4%BB%B6%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%89%AB%E6%8F%8F%E6%96%B0%E6%80%9D%E8%B7%AF/"/>
-    <published>2025-11-27T16:00:00.000Z</published>
-    <summary>
-      <![CDATA[<blockquote>
-<p>解铃还须系铃人</p>
-</blockquote>]]>
-    </summary>
-    <title>Z0Scan设计与实现：通用插件与分布式扫描新思路</title>
-    <updated>2026-07-04T02:32:48.578Z</updated>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="hardcoded-credentials" scheme="https://jiuzero.github.io/tags/hardcoded-credentials/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-TES7002-V4.0.0-CWMP-config_default.xml-Hardcoded-Credentials-Unauth-ACS-Impersonation/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-TES7002-V4.0.0-CWMP-config_default.xml-Hardcoded-Credentials-Unauth-ACS-Impersonation/"/>
+    <published>2026-11-05T07:00:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda TES7002 V4.0.0: TR-069 CWMP config_default.xml Hardcoded Credentials (Unauthenticated, ACS Impersonation and Remote Management Takeover)</title>
+    <updated>2026-11-05T18:01:19.593Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
-    <category term="其他" scheme="https://jiuzero.github.io/categories/%E5%85%B6%E4%BB%96/"/>
-    <category term="tools" scheme="https://jiuzero.github.io/tags/tools/"/>
-    <category term="z0scan" scheme="https://jiuzero.github.io/tags/z0scan/"/>
-    <id>https://jiuzero.github.io/2025/11/09/Z0Scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/</id>
-    <link href="https://jiuzero.github.io/2025/11/09/Z0Scan-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/"/>
-    <published>2025-11-08T16:00:00.000Z</published>
-    <summary>
-      <![CDATA[<blockquote>
-<p>愿你星河常明</p>
-</blockquote>]]>
-    </summary>
-    <title>Z0Scan - 开发指南</title>
-    <updated>2026-07-04T02:32:15.249Z</updated>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/TP-LINK-TL-FW5600E-1.11.2-webfilter.lua-time-Parameter-Command-Injection-Authenticated-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/TP-LINK-TL-FW5600E-1.11.2-webfilter.lua-time-Parameter-Command-Injection-Authenticated-Root-RCE/"/>
+    <published>2026-11-05T06:09:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>TP-LINK TL-FW5600E 1.11.2: webfilter.lua time Parameter Command Injection (Authenticated, Root RCE)</title>
+    <updated>2026-11-05T18:09:48.255Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
-    <category term="笔记" scheme="https://jiuzero.github.io/categories/%E7%AC%94%E8%AE%B0/"/>
-    <category term="sqli" scheme="https://jiuzero.github.io/tags/sqli/"/>
-    <id>https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/</id>
-    <link href="https://jiuzero.github.io/2025/08/01/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E7%AC%94%E8%AE%B0/"/>
-    <published>2025-07-31T16:00:00.000Z</published>
-    <summary>
-      <![CDATA[<blockquote>
-<p><strong>最后一次更新</strong>：2025.8.1</p>
-</blockquote>]]>
-    </summary>
-    <title>SQL注入绕过笔记</title>
-    <updated>2026-07-04T02:31:48.084Z</updated>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/TP-LINK-TL-IPC43AW-1.0.7-bin-main-perf-test-Command-Injection-Post-File-Write-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/TP-LINK-TL-IPC43AW-1.0.7-bin-main-perf-test-Command-Injection-Post-File-Write-Root-RCE/"/>
+    <published>2026-11-05T06:08:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>TP-LINK TL-IPC43AW 1.0.7: bin/main perf_test Command Injection (Post-File-Write, Root RCE)</title>
+    <updated>2026-11-05T18:09:20.873Z</updated>
   </entry>
   <entry>
     <author>
       <name>JiuZero</name>
     </author>
-    <category term="z0scan" scheme="https://jiuzero.github.io/tags/z0scan/"/>
-    <category term="其他" scheme="https://jiuzero.github.io/tags/%E5%85%B6%E4%BB%96/"/>
-    <id>https://jiuzero.github.io/2025/06/13/Z0Scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/</id>
-    <link href="https://jiuzero.github.io/2025/06/13/Z0Scan-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/"/>
-    <published>2025-06-12T16:00:00.000Z</published>
-    <summary>
-      <![CDATA[<blockquote>
-<p>Life is short. You need z0scan.</p>
-</blockquote>]]>
-    </summary>
-    <title>Z0Scan - 使用指南</title>
-    <updated>2026-07-03T16:25:21.714Z</updated>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-TC3B14C-V25.4.25.15-Kylin-HAL-Awss-Connect-Ap-nmcli-Command-Injection-Pre-Auth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-TC3B14C-V25.4.25.15-Kylin-HAL-Awss-Connect-Ap-nmcli-Command-Injection-Pre-Auth-Root-RCE/"/>
+    <published>2026-11-05T06:07:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda TC3B14C V25.4.25.15: Kylin HAL_Awss_Connect_Ap nmcli Command Injection (Pre-Auth, Root RCE)</title>
+    <updated>2026-11-05T18:08:53.836Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-RP3-V31.1.10.91-Kylin-ATE-SetCmd-Command-Injection-Pre-Auth-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-RP3-V31.1.10.91-Kylin-ATE-SetCmd-Command-Injection-Pre-Auth-Root-RCE/"/>
+    <published>2026-11-05T06:06:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda RP3 V31.1.10.91: Kylin ATE_SetCmd Command Injection (Pre-Auth, Root RCE)</title>
+    <updated>2026-11-05T18:08:17.283Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="auth-bypass" scheme="https://jiuzero.github.io/tags/auth-bypass/"/>
+    <category term="backdoor" scheme="https://jiuzero.github.io/tags/backdoor/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-IC7-PRS-2209020910-login.js-super-yg-Backdoor-Account-Pre-Auth-Login-Bypass-and-Credential-Recovery/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-IC7-PRS-2209020910-login.js-super-yg-Backdoor-Account-Pre-Auth-Login-Bypass-and-Credential-Recovery/"/>
+    <published>2026-11-05T06:05:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda IC7-PRS 2209020910: login.js super_yg Backdoor Account (Pre-Auth, Login Bypass and Credential Recovery)</title>
+    <updated>2026-11-05T18:07:20.789Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="hardcoded-credentials" scheme="https://jiuzero.github.io/tags/hardcoded-credentials/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-W30E-V2.0-V16.01.0.19-etc-ro-passwd-Hardcoded-Root-Credentials-Pre-Auth-Root-Shell-via-Telnet/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-W30E-V2.0-V16.01.0.19-etc-ro-passwd-Hardcoded-Root-Credentials-Pre-Auth-Root-Shell-via-Telnet/"/>
+    <published>2026-11-05T06:04:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda W30E V2.0 V16.01.0.19: /etc_ro/passwd Hardcoded Root Credentials (Pre-Auth, Root Shell via Telnet)</title>
+    <updated>2026-11-05T18:06:46.433Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="hardcoded-credentials" scheme="https://jiuzero.github.io/tags/hardcoded-credentials/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-i24-V3.0.0.8-etc-ro-passwd-Hardcoded-Root-Credentials-Pre-Auth-Root-Access/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-i24-V3.0.0.8-etc-ro-passwd-Hardcoded-Root-Credentials-Pre-Auth-Root-Access/"/>
+    <published>2026-11-05T06:03:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda i24 V3.0.0.8: /etc_ro/passwd Hardcoded Root Credentials (Pre-Auth, Root Access)</title>
+    <updated>2026-11-05T18:06:02.634Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="stack-overflow" scheme="https://jiuzero.github.io/tags/stack-overflow/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-M3-V1.0.0.12-httpd-goform-exeCommand-Stack-Buffer-Overflow-Authenticated-Return-Address-Overwrite/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-M3-V1.0.0.12-httpd-goform-exeCommand-Stack-Buffer-Overflow-Authenticated-Return-Address-Overwrite/"/>
+    <published>2026-11-05T06:02:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda M3 V1.0.0.12: httpd goform/exeCommand Stack Buffer Overflow (Authenticated, Return Address Overwrite)</title>
+    <updated>2026-11-05T18:05:16.730Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/Tenda-G3-V15.11.0.17-httpd-goform-setDebugCfg-Command-Injection-Authenticated-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/Tenda-G3-V15.11.0.17-httpd-goform-setDebugCfg-Command-Injection-Authenticated-Root-RCE/"/>
+    <published>2026-11-05T06:01:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>Tenda G3 V15.11.0.17: httpd goform/setDebugCfg Command Injection (Authenticated, Root RCE)</title>
+    <updated>2026-11-05T18:03:53.192Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
+    <id>https://jiuzero.github.io/2026/11/05/TP-LINK-TL-R5408M-V1.0.4-operation-tools-icmp-echo-test-Command-Injection-Authenticated-Root-RCE/</id>
+    <link href="https://jiuzero.github.io/2026/11/05/TP-LINK-TL-R5408M-V1.0.4-operation-tools-icmp-echo-test-Command-Injection-Authenticated-Root-RCE/"/>
+    <published>2026-11-05T06:00:00.000Z</published>
+    <summary>This content is encrypted, please enter the password to view.</summary>
+    <title>TP-LINK TL-R5408M V1.0.4: operation_tools icmp_echo_test Command Injection (Authenticated, Root Command Execution)</title>
+    <updated>2026-11-05T18:03:06.079Z</updated>
   </entry>
 </feed>
