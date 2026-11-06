@@ -11,7 +11,23 @@
   <rights>All rights reserved 2026, JiuZero</rights>
   <subtitle>Sun for morning, Moon for night, and you forever.</subtitle>
   <title>JiuZero's Blog</title>
-  <updated>2026-11-06T07:17:16.790Z</updated>
+  <updated>2026-11-06T15:17:50.033Z</updated>
+  <entry>
+    <author>
+      <name>JiuZero</name>
+    </author>
+    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
+    <category term="固件审计" scheme="https://jiuzero.github.io/tags/%E5%9B%BA%E4%BB%B6%E5%AE%A1%E8%AE%A1/"/>
+    <category term="AI" scheme="https://jiuzero.github.io/tags/AI/"/>
+    <id>https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/</id>
+    <link href="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/"/>
+    <published>2026-11-06T09:00:00.000Z</published>
+    <summary>
+      <![CDATA[<h2><span id="一-先交代问题设定">一、先交代问题设定</span></h2><p>首篇推文（<a]]>
+    </summary>
+    <title>FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 / 内核审计能力</title>
+    <updated>2026-11-06T15:17:50.033Z</updated>
+  </entry>
   <entry>
     <author>
       <name>JiuZero</name>
@@ -88,7 +104,7 @@
     <published>2026-11-05T07:04:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Alpine Linux minirootfs 3.24.0 x86: apk-tools 3.0.6 Directory Symlink Traversal Arbitrary File Overwrite (No Auth Required, Root Privilege Escalation and Persistence)</title>
-    <updated>2026-11-06T07:41:22.189Z</updated>
+    <updated>2026-11-06T15:47:26.037Z</updated>
   </entry>
   <entry>
     <author>
@@ -114,7 +130,7 @@
     <published>2026-11-05T07:02:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TC3T14C V25.4.26.15: Kylin CNetApp::OnConfigNetwork Command Injection (Network Configuration Input, Root RCE)</title>
-    <updated>2026-11-06T06:44:27.047Z</updated>
+    <updated>2026-11-06T15:46:48.030Z</updated>
   </entry>
   <entry>
     <author>
@@ -127,7 +143,7 @@
     <published>2026-11-05T07:01:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TES7002 V4.0.0: boa formImportOMCIShell Uploaded Script Execution (Unauthenticated Reachability Likely, Root RCE)</title>
-    <updated>2026-11-06T06:25:10.471Z</updated>
+    <updated>2026-11-06T15:45:54.660Z</updated>
   </entry>
   <entry>
     <author>
@@ -179,7 +195,7 @@
     <published>2026-11-05T06:07:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TC3B14C V25.4.25.15: Kylin HAL_Awss_Connect_Ap nmcli Command Injection (Pre-Auth, Root RCE)</title>
-    <updated>2026-11-06T07:40:53.232Z</updated>
+    <updated>2026-11-06T15:45:05.561Z</updated>
   </entry>
   <entry>
     <author>
@@ -192,7 +208,7 @@
     <published>2026-11-05T06:06:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda RP3 V31.1.10.91: Kylin ATE_SetCmd Command Injection (Pre-Auth, Root RCE)</title>
-    <updated>2026-11-06T07:40:28.669Z</updated>
+    <updated>2026-11-06T15:44:58.367Z</updated>
   </entry>
   <entry>
     <author>
@@ -232,7 +248,7 @@
     <published>2026-11-05T06:03:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda i24 V3.0.0.8: /etc_ro/passwd Hardcoded Root Credentials (Pre-Auth, Root Access)</title>
-    <updated>2026-11-06T06:37:39.246Z</updated>
+    <updated>2026-11-06T15:44:51.178Z</updated>
   </entry>
   <entry>
     <author>
@@ -245,7 +261,7 @@
     <published>2026-11-05T06:02:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda M3 V1.0.0.12: httpd goform/exeCommand Stack Buffer Overflow (Authenticated, Return Address Overwrite)</title>
-    <updated>2026-11-06T06:05:31.742Z</updated>
+    <updated>2026-11-06T15:44:49.133Z</updated>
   </entry>
   <entry>
     <author>
@@ -258,19 +274,6 @@
     <published>2026-11-05T06:01:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda G3 V15.11.0.17: httpd goform/setDebugCfg Command Injection (Authenticated, Root RCE)</title>
-    <updated>2026-11-06T06:05:06.984Z</updated>
-  </entry>
-  <entry>
-    <author>
-      <name>JiuZero</name>
-    </author>
-    <category term="漏洞" scheme="https://jiuzero.github.io/categories/%E6%BC%8F%E6%B4%9E/"/>
-    <category term="rce" scheme="https://jiuzero.github.io/tags/rce/"/>
-    <id>https://jiuzero.github.io/2026/11/05/TP-LINK-TL-R5408M-V1.0.4-operation-tools-icmp-echo-test-Command-Injection-Authenticated-Root-RCE/</id>
-    <link href="https://jiuzero.github.io/2026/11/05/TP-LINK-TL-R5408M-V1.0.4-operation-tools-icmp-echo-test-Command-Injection-Authenticated-Root-RCE/"/>
-    <published>2026-11-05T06:00:00.000Z</published>
-    <summary>This content is encrypted, please enter the password to view.</summary>
-    <title>TP-LINK TL-R5408M V1.0.4: operation_tools icmp_echo_test Command Injection (Authenticated, Root Command Execution)</title>
-    <updated>2026-11-06T06:05:06.964Z</updated>
+    <updated>2026-11-06T15:44:20.059Z</updated>
   </entry>
 </feed>

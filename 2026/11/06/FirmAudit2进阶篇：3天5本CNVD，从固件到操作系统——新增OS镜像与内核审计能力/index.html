@@ -1,0 +1,894 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)","en":"Copy successfully (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","en":"Copy failed (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.outdate = {"enable":true,"daysAgo":180,"message":{"en":"This article was last updated on {time}. Please note that the content may no longer be applicable.","zh-CN":"本文最后更新于 {time}，请注意文中内容可能已不适用。","zh-TW":"本文最後更新於 {time}，請注意文中內容可能已不適用。","ja":"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。","pt-BR":"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável."}};window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://jiuzero.github.io';window.REIMU_CONFIG.relative = '/';window.REIMU_CONFIG.i18n_languages = ["en"];</script>
+  <title>
+    FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 / 内核审计能力 | JiuZero&#39;s Blog
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/regular.min.css" integrity="sha384-4qYppzjH8EiA+cGdaubu2vL7Rk8WGiqCSj7oRuP1uwtFWkfKNHD20lPfcrbQc8dU" crossorigin="anonymous">
+<link rel="stylesheet" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/solid.min.css" integrity="sha384-wbMWab3UDSPm2kvIgVOn&#x2F;d9KPTecgPU1+Nb3zoQrm&#x2F;oVu0EkPL6IaKinjbwW0rum" crossorigin="anonymous">
+
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/brands.min.css" integrity="sha384-KTGeC2hIMzpeQakhsmzB9bZfhCD5xZZCgI1iZH6f/O457SxzlkzTQg/WXFNoi3ih" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v5-font-face.min.css" integrity="sha384-nJ1ThfldViXoLpJ6jlKcP2beas8BMbYq26SG9Hi8cH89bZi4RZ644v7helMCqJxd" crossorigin="anonymous">
+<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/@fortawesome/fontawesome-free@7.1.0/css/v4-font-face.min.css" integrity="sha384-UlkrhOIvZxJFd4MElSUp7ow6/RUeYKi/orfCZIRRiOENFuQPIAA3T3HjYfmBRhNq" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="一、先交代问题设定首篇推文（《FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线》）讲的是固件审计那条线：上传一份路由器固件，平台替你走完解包、静态、仿真、验证，最后打包出一份能直接交 CNVD 的资料。 但有我在宿舍突发奇想，考虑另一个场景：如果手里不是一份固件，而是一整张系统盘&#x2F;系统镜像——一个 .iso、一个 qcow2 虚拟机镜像、或者一组 bzImage + r">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 &#x2F; 内核审计能力">
+<meta property="og:url" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/index.html">
+<meta property="og:site_name" content="JiuZero&#39;s Blog">
+<meta property="og:description" content="一、先交代问题设定首篇推文（《FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线》）讲的是固件审计那条线：上传一份路由器固件，平台替你走完解包、静态、仿真、验证，最后打包出一份能直接交 CNVD 的资料。 但有我在宿舍突发奇想，考虑另一个场景：如果手里不是一份固件，而是一整张系统盘&#x2F;系统镜像——一个 .iso、一个 qcow2 虚拟机镜像、或者一组 bzImage + r">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img1.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img2.png">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img3.jpg">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img4.jpg">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img5.jpg">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img6.jpg">
+<meta property="og:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img7.png">
+<meta property="article:published_time" content="2026-11-06T09:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-06T15:17:50.033Z">
+<meta property="article:author" content="JiuZero">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="固件审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img1.png">
+    <link rel="alternate" href="/atom.xml" title="JiuZero's Blog" type="application/atom+xml">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      
+<link rel="stylesheet" href="https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.css" integrity="sha384-X7z7PUv2B67D8sPJyzDyGZSco1ADwmdI7ed4eCGtTKkClfyDFpPL9WgAn9XVr&#x2F;Io" crossorigin="anonymous">
+
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi ">
+          <img src="/images/loading.gif" alt="loading" />
+      </div>
+      <div class="loading-word">加载中...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  &#xf015;
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/archives">
+            <div class="main-nav-icon icon ">
+                  &#xf187;
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/about">
+            <div class="main-nav-icon icon ">
+                  &#xf007;
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/friend">
+            <div class="main-nav-icon icon ">
+                  &#xf500;
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" aria-label="RSS 订阅" target="_blank"></a>
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+    <nav id="i18n-nav" aria-label="Language selection">
+      <div class="custom-dropdown">
+        <div class="select-selected" id="select-selected" role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language menu">
+          <span id="nav-language-btn" class="nav-icon" style="padding: 0 20px 0 0"></span>
+          <span id="selected-lang">简体中文</span>
+        </div>
+        <ul class="select-items" id="select-items" role="listbox" aria-label="Languages">
+            <li data-value="zh-CN" role="option" class="selected" aria-selected="true">简体中文</li>
+            <li data-value="en" role="option" aria-selected="false">English</li>
+        </ul>
+      </div>
+      <script>
+        var selectSelected = document.getElementById("select-selected");
+        var selectedLang = document.getElementById("selected-lang");
+        var selectItems = document.getElementById("select-items");
+        var selectOptions = selectItems.querySelectorAll("li");
+
+        selectSelected.addEventListener("click", () => {
+          selectItems.classList.toggle("show");
+          var expanded = selectSelected.getAttribute("aria-expanded") === "true";
+          selectSelected.setAttribute("aria-expanded", (!expanded).toString());
+        });
+
+        selectOptions.forEach((item) => {
+          item.addEventListener("click", () => {
+            const langMap = {};
+              langMap['zh-CN'] = '/2026/11/06/FirmAudit2进阶篇：3天5本CNVD，从固件到操作系统——新增OS镜像与内核审计能力/';
+              langMap['en'] = '/en/2026/11/06/FirmAudit2进阶篇：3天5本CNVD，从固件到操作系统——新增OS镜像与内核审计能力/';
+            selectedLang.textContent = item.textContent;
+            selectItems.classList.remove("show");
+            selectOptions.forEach((option) => {
+              option.classList.remove("selected");
+            });
+            item.classList.add("selected");
+            window.location = langMap[item.dataset.value];
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".custom-dropdown")) {
+            selectItems.classList.remove("show");
+            selectSelected.setAttribute("aria-expanded", "false");
+          }
+        });
+      </script>
+    </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="/img/firmaudit2-os-cover.png" alt="FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 / 内核审计能力">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 / 内核审计能力</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content"  class="sidebar-right" >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一、先交代问题设定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">二、系统总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">能力概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">工作流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">三、OS 审计流水线：多了一个专门干 fuzz 的阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">四、攻击面台账：把”审没审完”变成平台能读的东西</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">为什么要造这本账</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">五、反扫描器纪律：强制手工 fuzz，堵住”扫描器捷径”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">六、产品信息纪律：不替你猜厂商与型号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">七、网络门控与模型网关：流量只走宿主中转</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">八、交付形态：复用同一套平铺总包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">九、现有产出展示（貌似成果才是重点…）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">十、购买入口（白帽集市）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">结语</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">83</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">15</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-FirmAudit2进阶篇：3天5本CNVD，从固件到操作系统——新增OS镜像与内核审计能力" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-11-06T09:00:00.000Z" itemprop="datePublished">2026-11-06</time>
+    <time style="display: none;" id="post-update-time">2026-11-06</time>
+  </span>
+    <span class="article-date-link icon-calendar-plus" data-aos="zoom-in">
+      <time datetime="2026-11-06T15:17:50.033Z" itemprop="dateModified">2026-11-06</time>
+    </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <div class="warning custom-block" id="outdate-blockquote" style="display: none;">
+          <p class="custom-block-title">WARNING</p>
+          <p></p>
+        </div>
+        <h2><span id="一-先交代问题设定">一、先交代问题设定</span></h2><p>首篇推文（<a href="/2026/09/24/FirmAudit2%EF%BC%9A%E4%BB%8E%E8%A7%A3%E5%8C%85%E5%88%B0%20CNVD%20%E4%BA%A4%E4%BB%98%EF%BC%8C%E5%9B%BA%E4%BB%B6%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1%E6%B5%81%E6%B0%B4%E7%BA%BF/">《FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线》</a>）讲的是固件审计那条线：上传一份路由器固件，平台替你走完解包、静态、仿真、验证，最后打包出一份能直接交 CNVD 的资料。</p>
+<p>但有我在宿舍突发奇想，考虑另一个场景：如果手里不是一份固件，而是一整张系统盘&#x2F;系统镜像——一个 <code>.iso</code>、一个 <code>qcow2</code> 虚拟机镜像、或者一组 <code>bzImage + rootfs</code>呢？</p>
+<p>这种目标，光”解包看文件系统”远远不够，真正要审的是<strong>内核、基础网络栈、驱动和认证权限组件</strong>：syscall 接口的越界写入、ioctl 的 <code>copy_from_user</code> 边界、提权路径里的 setuid&#x2F;capability 泄漏、PAM 默认凭据……这些都不是靠静态扫文件系统能碰到的，得真去 fuzz、去触发 crash、去读内核 oops。</p>
+<p>所以 FirmAudit2 在 v1.1.47 把审计对象从”固件”扩到了”操作系统”，新增了<strong>操作系统漏洞审计（OS）</strong>。它和固件审计共用同一套沙箱、同一套 findings 协议、同一套 CNVD 打包管线，但流水线、攻击面口径和几条纪律是重新设计的。</p>
+<p>数据同样统一从 log&#x2F;database 抽取成文本展示，敏感信息不截图（依旧懒得打码）</p>
+<hr>
+<h2><span id="二-系统总览">二、系统总览</span></h2><h3><span id="能力概览">能力概览</span></h3><p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img1.png"></p>
+<h3><span id="工作流程图">工作流程图</span></h3><p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img2.png"></p>
+<p>攻击面台账是这条流水线和固件审计最大的分叉点。固件审计的收口门判的是”段落填没填完”，而 OS 审计多了一本必须<strong>逐行闭合</strong>的账。</p>
+<hr>
+<h2><span id="三-os-审计流水线多了一个专门干-fuzz-的阶段">三、OS 审计流水线：多了一个专门干 fuzz 的阶段</span></h2><p>固件审计的五阶段是解包&#x2F;结构&#x2F;静态&#x2F;动态&#x2F;报告。OS 审计换成另一套口径，对应 <code>defaults/prompts/os.md</code> 的阶段上报协议：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/os_prompt.go  buildOSPromptFallback（节选）</span></span><br><span class="line"><span class="comment">// 执行流程：recon → setup → fuzz → analyze → verify</span></span><br><span class="line"><span class="comment">// fuzz：syzkaller syscall fuzz、AFL++ 网络/文件 fuzz、ioctl/驱动/认证组件专项</span></span><br><span class="line"><span class="comment">// analyze：crash root cause、提权路径、认证绕过</span></span><br><span class="line"><span class="comment">// verify：PoC + script 转录证据</span></span><br></pre></td></tr></table></figure>
+
+<p>五个阶段里，<strong>fuzz 是 OS 审计专属的核心阶段</strong>，固件审计没有这一档：</p>
+<ol>
+<li><strong>recon（环境侦察）</strong>：识别镜像&#x2F;内核类型（<code>file</code>、<code>binwalk</code>、<code>qemu-img info</code>、<code>fdisk -l</code>）、版本号（<code>uname -a</code>、<code>cat /etc/os-release</code>、内核版本串）、架构、引导方式（GRUB&#x2F;syslinux&#x2F;U-Boot），并建立攻击面台账；</li>
+<li><strong>setup（环境搭建）</strong>：在目标系统内装<strong>白名单内</strong>的辅助工具——编译（gcc&#x2F;clang&#x2F;make&#x2F;cmake&#x2F;musl-dev）、调试（gdb&#x2F;strace&#x2F;ltrace&#x2F;valgrind&#x2F;ASan）、二进制分析（objdump&#x2F;readelf&#x2F;radare2&#x2F;rizin）、源码获取（git&#x2F;wget&#x2F;curl）；</li>
+<li><strong>fuzz（模糊测试）</strong>：按攻击面选策略——syzkaller 对 syscall 做结构化 fuzz、AFL++ 对网络服务二进制做文件&#x2F;网络 fuzz、libFuzzer 对有解析函数的库做 in-process fuzz、对 login&#x2F;sudo&#x2F;su&#x2F;pam 做输入变异；</li>
+<li><strong>analyze（分析）</strong>：crash&#x2F;oops 的 root cause 定位、提权路径分析、认证绕过验证；</li>
+<li><strong>verify（验证）</strong>：每个可确认漏洞写独立 PoC，<code>script</code> 命令录制终端转录作证据。</li>
+</ol>
+<p>工具链在 <code>provision.sh</code> 里有专门的 OS 安装段：syzkaller（GitHub 源码编译，含 Go 工具链自动安装）、AFL++&#x2F;rr&#x2F;crash（apt）、angr（pip）；装不上也只是降级成警告，不阻断部署。</p>
+<p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img3.jpg"></p>
+<hr>
+<h2><span id="四-攻击面台账把审没审完变成平台能读的东西">四、攻击面台账：把”审没审完”变成平台能读的东西</span></h2><h3><span id="为什么要造这本账">为什么要造这本账</span></h3><p>后台统计过同一份镜像、同一模型的多轮审计：攻击面条目数分别是 <strong>16 &#x2F; 13 &#x2F; 8 &#x2F; 9</strong>，已证实分别是 <strong>5 &#x2F; 3 &#x2F; 0 &#x2F; 2</strong>，而回合数和 token 消耗几乎恒定。</p>
+<p>差别不在算力，在于模型有没有把”还没看过的入口”记在账上——它经常自报 done，但台账里还躺着 7 行没审。</p>
+<p>首篇提过的收口门只管”漏洞段落填没填完”，管不到”攻击面有没有审全”。于是单独做了一条<strong>平台真正消费</strong>的协议：Agent 覆盖写</p>
+<p><code>/workspace/.cpi/audit/attack_surface.json</code>，每行是一个可控入口点及其审查结论；</p>
+<p>监视器每轮读取，落四道门（代码在 <code>internal/agent/attack_surface.go</code>）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ledgerGateCategory：固件审计与操作系统审计都要求台账每行闭合；</span></span><br><span class="line"><span class="comment">// 复现与历史题型没有台账协议。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ledgerGateCategory</span><span class="params">(category platform.Category)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> category == platform.CategoryFirmware || category == platform.CategoryOS</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态取值与提示词一致：未审 / 审查中 / 已证实 / 已排除 / 已放弃</span></span><br><span class="line"><span class="comment">// summarizeAttackSurface 把&quot;收口障碍&quot;挑出来：</span></span><br><span class="line"><span class="comment">//   pending    = 未审 / 审查中（不允许留到收尾）</span></span><br><span class="line"><span class="comment">//   unreasoned = 已排除 / 已放弃但没写 reason</span></span><br><span class="line"><span class="comment">//   unknown    = status 取值非法</span></span><br></pre></td></tr></table></figure>
+
+<p>落下的四道门各管一摊。</p>
+<p>G1 负责把进度亮出来——台账状态分布一变就发 <code>audit.surface</code> 事件，前端阶段区能直接看到覆盖进度，不用等黑盒跑完才知道审了多少。</p>
+<p>G2 卡的是收口：Agent 自报 done 时台账里还躺着”未审&#x2F;审查中”的行，平台直接拒收、发 <code>audit.stage.blocked</code>，并把待办清单回投给会话让它补判，而不是一刀切判停。</p>
+<p>G3 逼着写理由——已排除或已放弃的行必须带 <code>reason</code>，否则照样算收口障碍，免得出现”我看过了但没写为什么排除”这种没法复核的结论。</p>
+<p>G4 只在矛盾时存疑：Agent 自报的阶段和工作区客观产物对不上（比如自报 verify，却既没已证实条目也没转录证据），平台发 <code>audit.stage.suspect</code> 提醒操作员，但<strong>只提示不改判</strong>——万一是同回合里刚补上的，误判成卡住反而更糟。</p>
+<p>还有个细节救过事故：台账用 <code>cat &gt;</code> 覆盖写，文件会瞬间变成 0 字节或半截 JSON；收口门只读一次会把撕裂写当成”台账缺失”误判暂停，所以收口门专用读取会<strong>等 400ms 再读一次</strong>区分”真没写”和”正在写”。</p>
+<p>漏洞数量波动的根因，就是这本账之前平台从不读。现在它既是 Agent 的待办清单，也是平台收口的硬依据。</p>
+<hr>
+<h2><span id="五-反扫描器纪律强制手工-fuzz堵住扫描器捷径">五、反扫描器纪律：强制手工 fuzz，堵住”扫描器捷径”</span></h2><p>OS 审计和固件审计有个本质区别：固件审计偏静态+仿真验证，OS 审计要真去跑 fuzz、触发内核 crash。最容易偷懒的做法是装个 Trivy &#x2F; Semgrep 扫一遍、把扫描报告当发现——但那种输出没有运行时证据，交 CNVD 根本站不住。</p>
+<p>所以 <code>os.md</code> 列了明确的<strong>黑名单</strong>，平台在提示词层就把它堵死：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// defaults/prompts/os.md  安全边界与约束（节选）</span></span><br><span class="line"><span class="comment">// - 辅助审计工具安装白名单：gcc、clang、make、cmake、musl-dev、gdb、lldb、</span></span><br><span class="line"><span class="comment">//   strace、ltrace、valgrind、objdump、readelf、nm、strings、xxd、file、</span></span><br><span class="line"><span class="comment">//   radare2、rizin、capstone、python3、AFL++、libFuzzer、honggfuzz；</span></span><br><span class="line"><span class="comment">// - 禁止安装或使用自动化审计工具、自动化漏洞扫描器、自动化审计平台：</span></span><br><span class="line"><span class="comment">//   Semgrep、CodeQL、SonarQube、Coverity、Snyk、Trivy、Grype、Clair、</span></span><br><span class="line"><span class="comment">//   Nessus、OpenVAS 等一律不得安装或执行；</span></span><br><span class="line"><span class="comment">// - 静态分析与模糊测试必须由你手工构建目标与用例，不得依赖上述黑名单工具。</span></span><br></pre></td></tr></table></figure>
+
+<p>换句话说，OS 审计的”发现”必须来自 syzkaller&#x2F;AFL++&#x2F;libFuzzer 这类<strong>手工构建目标与用例</strong>的 fuzzing，或手工的静态分析+复现；扫描器能出的只是线索，不能当结论。</p>
+<p>这条纪律和首篇讲的”仿真验证硬门只认运行时回显”是同一个底层原则——<strong>证据必须可复核</strong>，只是到了 OS 层面换成了”拒绝扫描器捷径”。</p>
+<p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img4.jpg"></p>
+<hr>
+<h2><span id="六-产品信息纪律不替你猜厂商与型号">六、产品信息纪律：不替你猜厂商与型号</span></h2><p>固件审计那边，平台能从文件名、版本文件里读出版本信息；OS 镜像这块我特意改了口径——<strong>平台取消厂商&#x2F;型号的自动识别</strong>，上报表里的”厂商&#x2F;产品&#x2F;版本”只是操作员的可选填写值。报告里写什么，必须以 Agent 从镜像内容<strong>实测确证</strong>的结果为准：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// defaults/prompts/os.md  产品信息纪律（节选）</span></span><br><span class="line"><span class="comment">// 报告中的厂商/型号/版本必须以你从镜像内容实测确证的结果为准</span></span><br><span class="line"><span class="comment">// （os-release、内核版本字符串、启动横幅等交叉印证），</span></span><br><span class="line"><span class="comment">// 无法确证时必须在报告中如实注明「厂商/型号未能确认」，</span></span><br><span class="line"><span class="comment">// 禁止用文件名猜测或组件版本冒充产品信息。</span></span><br></pre></td></tr></table></figure>
+
+<p>这条规定是为防一种常见幻觉：模型看一眼文件名 <code>ubuntu-virt-3.24.1.iso</code> 就把厂商写成 Ubuntu、版本写成 3.24.1，却从没真正 <code>cat /etc/os-release</code> 印证。</p>
+<p>现在窗口里留的占位文本就是”未提供（操作员未填写；请从镜像内容确证，无法确证时在报告中如实注明「未能确认」，禁止臆测）”——把”我不知道”变成强制声明，而不是默默编一个。</p>
+<hr>
+<h2><span id="七-网络门控与模型网关流量只走宿主中转">七、网络门控与模型网关：流量只走宿主中转</span></h2><p>OS 审计里 Agent 要装工具、拉源码、跑 fuzz，网络需求比固件审计重，所以隔离边界更要讲清楚。沙箱的网络不是”能连就能连”，而是 daemon 在任务命名空间内用 <strong>iptables 白名单</strong>实施的，提示词必须和内核实际行为一致，否则 Agent 会去试被丢弃的外联、白白浪费回合：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// internal/agent/firmware_prompt.go  sandboxNetworkNotice（OS 审计同用）</span></span><br><span class="line"><span class="comment">// NetworkRestricted：默认禁止出站流量，仅放行宿主模型网关与配置的内网白名单。</span></span><br><span class="line"><span class="comment">// 联网模式：可访问官方软件源/包仓库，但结论必须基于对镜像本身的独立验证，</span></span><br><span class="line"><span class="comment">// 不得把网上信息直接当作发现；攻击载荷只允许打在沙箱内部仿真目标与 127.0.0.1 上。</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有两件事得说清。模型流量统一走宿主网关中转（modelgateway），容器里禁止直连外网 API，上游密钥只在 daemon 侧持有，既不序列化给前端也不进容器；攻击载荷则只落在沙箱内部仿真目标与回环地址，绝不允许把 payload 打向任何真实第三方。</p>
+<p>这和首篇的 overlay 临时根是同一套”运行时约束”思路：让 Agent 能干活，但<strong>写不坏宿主、连不到外面、密钥不出 daemon</strong>。</p>
+<hr>
+<h2><span id="八-交付形态复用同一套平铺总包">八、交付形态：复用同一套平铺总包</span></h2><p>OS 审计的发现走的是和固件审计完全相同的收口路径：每段漏洞资料过首篇讲过的分段引导与四道质量门，过了门就平铺进 CNVD 交付包——镜像副本 + 报告 + PoC + 证据，全部平铺在包根，评审者不需要理解目录结构。v1.1.57 把攻击面台账收口门也并进了这条路径，所以 OS 任务不会在台账缺失&#x2F;未闭合时被判”资料齐备”。</p>
+<p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img5.jpg"></p>
+<p>唯一 OS 专属的交付物是 <code>审计总报告.md</code>（v1.1.56 起三个审计类别都有了独立的报告页签 + Markdown 渲染）：至少含镜像概览、实测版本信息、攻击面覆盖清单、漏洞汇总表与每漏洞的复现证据索引。</p>
+<hr>
+<h2><span id="九-现有产出展示貌似成果才是重点">九、现有产出展示（貌似成果才是重点…）</span></h2><p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img6.jpg"></p>
+<hr>
+<h2><span id="十-购买入口白帽集市">十、购买入口（白帽集市）</span></h2><p><img src="/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/img7.png"></p>
+<blockquote>
+<p><strong>FirmAudit2 · 固件 &#x2F; 操作系统漏洞审计平台</strong></p>
+<ul>
+<li><strong>【占位：价格】</strong> ￥50（公测价）</li>
+<li><strong>【授权方式】</strong> 单设备永久授权</li>
+<li><strong>【库存余量】</strong> 11</li>
+<li><strong>【售后与更新】</strong> 版本更新：保持迭代推送；答疑渠道：微信群聊</li>
+<li><strong>【购买入口】</strong> 白帽集市搜索「FirmAudit2」，或直接扫描上方二维码</li>
+</ul>
+</blockquote>
+<p>前置环境：Windows 11 x64、已启用 WSL2（<code>wsl --install</code>）、磁盘建议 ≥ 40GB 可用、首次部署工具链需联网。<strong>大模型 API 需自备</strong>，平台不内置任何模型额度。（OS 审计要装 syzkaller&#x2F;AFL++ 这类重工具，建议用聪明一点的模型，并给沙箱留足磁盘与内存。）</p>
+<hr>
+<h2><span id="结语">结语</span></h2><p>首篇解决了”怎么保证固件漏洞是真的、能拿出证据、能变成可交的格式”。本篇补的是另一半：</p>
+<p>当目标从一份固件变成一整张系统镜像&#x2F;内核，审计对象从文件系统挪到了内核态与系统组件，平台该怎么把”审没审全”也变成可校验的东西——<strong>攻击面台账、反扫描器纪律、产品信息实测确证，加上延续下来的网络门控</strong>，合起来就是 OS 审计线的底气。</p>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E6%BC%8F%E6%B4%9E/" title="漏洞" data-aos="zoom-in">漏洞</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/AI/" rel="tag" title="AI">AI</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E5%AE%A1%E8%AE%A1/" rel="tag" title="固件审计">固件审计</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+    <div class="article-nav-link-wrap right">
+        <img data-src="https://cdn.8845.top/p/pc/夏天5个女孩4K.webp" data-sizes="auto" alt="Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)" class="lazyload">
+      <a href="/2026/11/05/Tenda-CP6-V11.10.00.243-etc-passwd-Hardcoded-Root-Weak-Password-Unauth-Root-Access/" aria-label="后一篇: Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)"  title="后一篇: Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+  <section id="comments" data-aos="fade-up">
+    <div class="comment-header">
+        
+      <h2 class="comment-title">说些什么吧！</h2>
+      <div class="comment-selector">
+        <div class="comment-selector-wrap">
+            <div class="selector-item" data-selector="gitalk">
+              <span>gitalk</span>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="comment-content">
+          <div class="comment gitalk-comment" data-aos="fade-up"
+            id="gitalk-comment">
+          </div>
+    </div>
+  </section>
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep "></span>
+      JiuZero
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        25.3k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        03:03
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一、先交代问题设定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">二、系统总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.1.</span> <span class="toc-text">能力概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">2.2.</span> <span class="toc-text">工作流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">三、OS 审计流水线：多了一个专门干 fuzz 的阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">四、攻击面台账：把”审没审完”变成平台能读的东西</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">为什么要造这本账</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">五、反扫描器纪律：强制手工 fuzz，堵住”扫描器捷径”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">六、产品信息纪律：不替你猜厂商与型号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">七、网络门控与模型网关：流量只走宿主中转</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">八、交付形态：复用同一套平铺总包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">九、现有产出展示（貌似成果才是重点…）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">10.</span> <span class="toc-text">十、购买入口（白帽集市）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">11.</span> <span class="toc-text">结语</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="JiuZero" class="lazyload">
+  <div class="sidebar-author-name">JiuZero</div>
+  <div class="sidebar-description">东风夜放花千树，更吹落、星如雨。</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">83</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">3</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">15</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=mailto:1703417187@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/JiuZero itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/1308423507 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-qq sidebar-social-icon">
+      <a href=https://qm.qq.com/q/RIxC8AQxCE itemprop="url" target="_blank" aria-label="qq" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf015;
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf187;
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf007;
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                &#xf500;
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/quicklink@3.0.1/dist/quicklink.umd.js" integrity="sha384-caMDqvgav&#x2F;HWdEYQU1QRRHMLleigpL1YHAG0m371DhzfL8rRzUyOb+bEHtwlmYjD" crossorigin="anonymous"></script>
+
+  <script data-pjax>
+    window.quicklink?.listen({
+      timeout: 3000,
+      priority: true,
+      ignores: []
+    });
+  </script>
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "JiuZero",
+          title: "FirmAudit2 进阶篇：3天5本CNVD，从固件到操作系统——新增 OS 镜像 / 内核审计能力",
+          url: "https://jiuzero.github.io/2026/11/06/FirmAudit2%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%9A3%E5%A4%A95%E6%9C%ACCNVD%EF%BC%8C%E4%BB%8E%E5%9B%BA%E4%BB%B6%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E6%96%B0%E5%A2%9EOS%E9%95%9C%E5%83%8F%E4%B8%8E%E5%86%85%E6%A0%B8%E5%AE%A1%E8%AE%A1%E8%83%BD%E5%8A%9B/",
+          excerpt: "",
+          description: "",
+          stripContent: "一、先交代问题设定首篇推文（《FirmAudit2：从解包到 CNVD 交付，固件漏洞审计流水线》）讲的是固件审计那条线：上传一份路由器固件，平台替你走完解包、静态、仿真、验证，最后打包出一份能直接交 CNVD 的资料。 但有我在宿舍突发奇想，考虑另一个场景：如果手里不是一份固件，而是一整张系统盘&amp;#x2F;系统镜像——一个 .iso、一个 qcow2 虚拟机镜像、或者一组 bzImage + rootfs呢？ 这种目标，光”解包看文件系统”远远不够，真正要审的是内核、基础网络栈、驱动和认证权限",
+          date: "Fri Nov 06 2026 17:00:00 GMT+0800",
+          updated: "Fri Nov 06 2026 23:17:50 GMT+0800",
+          cover: "/img/firmaudit2-os-cover.png",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+<script data-pjax>
+  var loadScript = (src, integrity) => {
+    const script = document.createElement('script');
+    script.src = src;
+    if (integrity) script.integrity = integrity;
+    script.crossOrigin = 'anonymous';
+    return script;
+  };
+
+  var commentConfigKeys = ["gitalk"];
+  var commentConfig = {
+    gitalk: {
+      enable: true,
+      load: () => {
+        const container = document.querySelector('.gitalk-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.min.js',
+          'sha384-kspnZUWBoSWwoJHa0hBCXYbHGbhvU/lcEH5O8eVbSDhbPwsiVUTp/aGX/z/5EuMA'
+        );
+
+        script.onload = () => {
+            initGitalk();
+        }
+        document.head.appendChild(script);
+
+        function initGitalk() {
+          var gitalkId = location.pathname;
+          var gitalk = new Gitalk({
+            clientID: 'Ov23liKvGhx1da2qgEDL',
+            clientSecret: '67ac978699f8e6cbcad70bca3e05b47ee7042f41',
+            repo: 'jiuzero.github.io',
+            owner: 'jiuzero',
+            admin: ["jiuzero"],
+            id: gitalkId,
+            distractionFreeMode: false,
+            language: document.documentElement.lang || 'en',
+          })
+          gitalk.render('gitalk-comment');
+        }
+      }
+    },
+  }
+  commentConfig.enable = commentConfigKeys.some(key => commentConfig[key].enable);
+
+  var defaultComment = '';
+  if (commentConfig.enable) {
+    // 1. 首先检查localStorage中是否有保存的评论类型
+    var savedCommentType = localStorage.getItem('commentType');
+    
+    // 2. 如果localStorage中有值且对应的评论系统可用，就使用它
+    if (savedCommentType) {
+      if (commentConfig[savedCommentType]?.enable) {
+        defaultComment = savedCommentType;
+      }
+    }
+    
+    // 3. 如果localStorage无效，检查配置的默认评论系统
+    if (!defaultComment) {
+      var configDefault = 'waline';
+      if (commentConfig[configDefault]?.enable) {
+        defaultComment = configDefault;
+      }
+    }
+    
+    // 4. 如果前两项都无效，按指定顺序找到第一个可用的评论系统
+    if (!defaultComment) {
+      defaultComment = commentConfigKeys.find(sys => commentConfig[sys].enable) || '';
+    }
+  }
+  function loadComments() {
+    if (!commentConfig.enable) return;
+    const loadedComments = {
+      valine: false,
+      waline: false,
+      twikoo: false,
+      gitalk: false,
+      giscus: false,
+      utterances: false,
+      beaudar: false,
+      disqus: false,
+    };
+
+    // 隐藏所有评论容器
+    const hideAllComments = () => {
+      const commentContainers = document.querySelectorAll('.comment');
+      commentContainers.forEach(container => {
+        container.style.display = 'none';
+      });
+    };
+
+    // 按需加载评论系统
+    const loadCommentSystem = (type) => {
+      if (loadedComments[type]) {
+        // 如果已加载，只需显示对应容器
+        document.querySelector(`.${type}-comment`).style.display = 'block';
+        return;
+      }
+
+      // 根据类型加载对应的脚本
+      commentConfig[type]?.load();
+      loadedComments[type] = true;
+    };
+
+    // 评论组件选择器
+    const changeActiveCommentItems = (item) => {
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let i = 0; i < commentItems.length; i++) {
+        commentItems[i].classList.remove('active');
+      }
+      item.classList.add('active');
+
+      // 获取要加载的评论系统类型
+      const commentType = item.getAttribute('data-selector');
+
+      // 隐藏所有评论系统
+      hideAllComments();
+
+      // 加载选中的评论系统
+      loadCommentSystem(commentType);
+    };
+
+    const commentInit = () => {
+      // 评论组件选择器点击事件
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let item of commentItems) {
+        item.addEventListener('click', () => {
+          // 保存选择器状态
+          const commentType = item.getAttribute('data-selector');
+          window.localStorage.setItem('commentType', commentType);
+          // 切换选中状态
+          changeActiveCommentItems(item);
+        });
+      }
+
+      // 检查是否需要加载默认评论系统
+      if (defaultComment) {
+        const defaultSelectorItem = document.querySelector(`[data-selector="${defaultComment}"]`);
+        if (!defaultSelectorItem) return;
+        defaultSelectorItem.style.display = 'block';
+        defaultSelectorItem.classList.add('active');
+        loadCommentSystem(defaultComment);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', commentInit);
+    } else {
+      commentInit();
+    }
+  };
+  loadComments();
+</script>
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+<script data-pjax>
+  var updateTime = _$('#post-update-time')?.innerHTML;
+
+  if (updateTime) {
+    const update = new Date(updateTime);
+    const now = new Date();
+    const diff = now - update;
+    const days = diff / 86400000;
+    const { daysAgo, message: template } = window.REIMU_CONFIG.outdate;
+    if (days >= daysAgo) {
+      let message = `This article was last updated on ${updateTime}. Please note that the content may no longer be applicable.`;
+      if (typeof template === 'string') {
+        message = template.replace(/{time}/, updateTime);
+      } else if (typeof template === 'object') {
+        const lang = document.documentElement.lang;
+        const messageKey = Object.keys(template).find(key => key.toLowerCase() === lang.toLowerCase());
+        if (messageKey && template[messageKey]) {
+          message = template[messageKey].replace(/{time}/, updateTime);
+        }
+      }
+      const blockquote = _$('#outdate-blockquote');
+      if (blockquote) {
+        blockquote.querySelectorAll('p')[1].innerText = message;
+        blockquote.style.display = 'flow-root';
+      }
+    }
+  }
+</script>
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+      <script src="/js/hbe-image-fix.js" defer></script>
+  <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+  </html>
