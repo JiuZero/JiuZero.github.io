@@ -11,7 +11,7 @@
   <rights>All rights reserved 2026, JiuZero</rights>
   <subtitle>Sun for morning, Moon for night, and you forever.</subtitle>
   <title>JiuZero's Blog</title>
-  <updated>2026-11-05T18:10:56.803Z</updated>
+  <updated>2026-11-06T07:17:16.790Z</updated>
   <entry>
     <author>
       <name>JiuZero</name>
@@ -23,7 +23,7 @@
     <published>2026-11-05T07:09:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda CP6 V11.10.00.243: /etc/passwd Hardcoded Root Weak Password (Unauthenticated, Root Access)</title>
-    <updated>2026-11-05T18:10:56.803Z</updated>
+    <updated>2026-11-06T07:17:16.790Z</updated>
   </entry>
   <entry>
     <author>
@@ -36,7 +36,7 @@
     <published>2026-11-05T07:08:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda CP6 V11.10.00.243: wagent CGI Quote-Wrapping Command Injection (Unauthenticated, Root RCE)</title>
-    <updated>2026-11-05T18:10:27.104Z</updated>
+    <updated>2026-11-06T07:15:14.636Z</updated>
   </entry>
   <entry>
     <author>
@@ -49,7 +49,7 @@
     <published>2026-11-05T07:07:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Xiaomi MiWiFi R4C 2.30.19: macfilterctl setRule mac Field iptables Command Injection (MAC Whitelist Bypass Prerequisite, Root RCE)</title>
-    <updated>2026-11-05T18:09:00.261Z</updated>
+    <updated>2026-11-06T07:10:53.169Z</updated>
   </entry>
   <entry>
     <author>
@@ -62,7 +62,7 @@
     <published>2026-11-05T07:06:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda CP6 V11.10.00.243: getsnapshot.cgi QUERY_STRING Command Injection (Unauthenticated, Root RCE)</title>
-    <updated>2026-11-05T18:08:18.510Z</updated>
+    <updated>2026-11-06T07:13:59.621Z</updated>
   </entry>
   <entry>
     <author>
@@ -75,7 +75,7 @@
     <published>2026-11-05T07:05:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Xiaomi MiWiFi R4C 2.30.19: macfilterctl MAC Filter Rule Lua Code Injection (Authenticated, Root RCE)</title>
-    <updated>2026-11-05T18:07:31.010Z</updated>
+    <updated>2026-11-06T07:07:33.502Z</updated>
   </entry>
   <entry>
     <author>
@@ -88,7 +88,7 @@
     <published>2026-11-05T07:04:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Alpine Linux minirootfs 3.24.0 x86: apk-tools 3.0.6 Directory Symlink Traversal Arbitrary File Overwrite (No Auth Required, Root Privilege Escalation and Persistence)</title>
-    <updated>2026-11-05T18:06:40.832Z</updated>
+    <updated>2026-11-06T07:41:22.189Z</updated>
   </entry>
   <entry>
     <author>
@@ -101,7 +101,7 @@
     <published>2026-11-05T07:03:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>TP-LINK TL-FW5600E 1.11.2: usermngr.lua add_user username Parameter Command Injection (Authenticated, Root RCE)</title>
-    <updated>2026-11-05T18:05:45.828Z</updated>
+    <updated>2026-11-06T07:43:30.836Z</updated>
   </entry>
   <entry>
     <author>
@@ -114,7 +114,7 @@
     <published>2026-11-05T07:02:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TC3T14C V25.4.26.15: Kylin CNetApp::OnConfigNetwork Command Injection (Network Configuration Input, Root RCE)</title>
-    <updated>2026-11-05T18:04:53.828Z</updated>
+    <updated>2026-11-06T06:44:27.047Z</updated>
   </entry>
   <entry>
     <author>
@@ -127,7 +127,7 @@
     <published>2026-11-05T07:01:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TES7002 V4.0.0: boa formImportOMCIShell Uploaded Script Execution (Unauthenticated Reachability Likely, Root RCE)</title>
-    <updated>2026-11-05T18:02:15.303Z</updated>
+    <updated>2026-11-06T06:25:10.471Z</updated>
   </entry>
   <entry>
     <author>
@@ -140,7 +140,7 @@
     <published>2026-11-05T07:00:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TES7002 V4.0.0: TR-069 CWMP config_default.xml Hardcoded Credentials (Unauthenticated, ACS Impersonation and Remote Management Takeover)</title>
-    <updated>2026-11-05T18:01:19.593Z</updated>
+    <updated>2026-11-06T06:23:03.789Z</updated>
   </entry>
   <entry>
     <author>
@@ -153,7 +153,7 @@
     <published>2026-11-05T06:09:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>TP-LINK TL-FW5600E 1.11.2: webfilter.lua time Parameter Command Injection (Authenticated, Root RCE)</title>
-    <updated>2026-11-05T18:09:48.255Z</updated>
+    <updated>2026-11-06T06:21:13.147Z</updated>
   </entry>
   <entry>
     <author>
@@ -166,7 +166,7 @@
     <published>2026-11-05T06:08:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>TP-LINK TL-IPC43AW 1.0.7: bin/main perf_test Command Injection (Post-File-Write, Root RCE)</title>
-    <updated>2026-11-05T18:09:20.873Z</updated>
+    <updated>2026-11-06T06:31:58.036Z</updated>
   </entry>
   <entry>
     <author>
@@ -179,7 +179,7 @@
     <published>2026-11-05T06:07:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda TC3B14C V25.4.25.15: Kylin HAL_Awss_Connect_Ap nmcli Command Injection (Pre-Auth, Root RCE)</title>
-    <updated>2026-11-05T18:08:53.836Z</updated>
+    <updated>2026-11-06T07:40:53.232Z</updated>
   </entry>
   <entry>
     <author>
@@ -192,7 +192,7 @@
     <published>2026-11-05T06:06:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda RP3 V31.1.10.91: Kylin ATE_SetCmd Command Injection (Pre-Auth, Root RCE)</title>
-    <updated>2026-11-05T18:08:17.283Z</updated>
+    <updated>2026-11-06T07:40:28.669Z</updated>
   </entry>
   <entry>
     <author>
@@ -206,7 +206,7 @@
     <published>2026-11-05T06:05:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda IC7-PRS 2209020910: login.js super_yg Backdoor Account (Pre-Auth, Login Bypass and Credential Recovery)</title>
-    <updated>2026-11-05T18:07:20.789Z</updated>
+    <updated>2026-11-06T06:35:19.173Z</updated>
   </entry>
   <entry>
     <author>
@@ -219,7 +219,7 @@
     <published>2026-11-05T06:04:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda W30E V2.0 V16.01.0.19: /etc_ro/passwd Hardcoded Root Credentials (Pre-Auth, Root Shell via Telnet)</title>
-    <updated>2026-11-05T18:06:46.433Z</updated>
+    <updated>2026-11-06T06:13:22.441Z</updated>
   </entry>
   <entry>
     <author>
@@ -232,7 +232,7 @@
     <published>2026-11-05T06:03:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda i24 V3.0.0.8: /etc_ro/passwd Hardcoded Root Credentials (Pre-Auth, Root Access)</title>
-    <updated>2026-11-05T18:06:02.634Z</updated>
+    <updated>2026-11-06T06:37:39.246Z</updated>
   </entry>
   <entry>
     <author>
@@ -245,7 +245,7 @@
     <published>2026-11-05T06:02:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda M3 V1.0.0.12: httpd goform/exeCommand Stack Buffer Overflow (Authenticated, Return Address Overwrite)</title>
-    <updated>2026-11-05T18:05:16.730Z</updated>
+    <updated>2026-11-06T06:05:31.742Z</updated>
   </entry>
   <entry>
     <author>
@@ -258,7 +258,7 @@
     <published>2026-11-05T06:01:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>Tenda G3 V15.11.0.17: httpd goform/setDebugCfg Command Injection (Authenticated, Root RCE)</title>
-    <updated>2026-11-05T18:03:53.192Z</updated>
+    <updated>2026-11-06T06:05:06.984Z</updated>
   </entry>
   <entry>
     <author>
@@ -271,6 +271,6 @@
     <published>2026-11-05T06:00:00.000Z</published>
     <summary>This content is encrypted, please enter the password to view.</summary>
     <title>TP-LINK TL-R5408M V1.0.4: operation_tools icmp_echo_test Command Injection (Authenticated, Root Command Execution)</title>
-    <updated>2026-11-05T18:03:06.079Z</updated>
+    <updated>2026-11-06T06:05:06.964Z</updated>
   </entry>
 </feed>
